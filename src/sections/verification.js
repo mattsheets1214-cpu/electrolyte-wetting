@@ -86,7 +86,7 @@ export function render(root) {
       <li>${tex('t_{70\\,\\mu m} = (70\\times10^{-6})^2 / D_W = 3.39\\ \\text{ms}')}; ${tex('t_{1\\,cm} = 69.1\\ \\text{s}')}; ${tex('t_{5\\,cm} = 1728\\ \\text{s} = 28.8\\ \\text{min}')}; with ${tex('\\tau = 2')}: ${tex('\\times 4 = 115.2\\ \\text{min}')}.</li>
       <li>Mode B with ${tex('p_L + p_c = 203.1\\ \\text{kPa}')}: ${tex('1 - 101.3/203.1 = 0.501')}; ${tex('1 - 10/203.1 = 0.951')}; ${tex('1 - 1/203.1 = 0.995')}.</li>
     </ol>
-    <p>These match the project blueprint to the stated precision and are the targets of the "Hand calculation" checks above. A second, independent copy lives in <code>python/make_reference_cases.py</code>, which writes closed-form reference values used by both the JavaScript and Python tests.</p>
+    <p>These match the project blueprint to the stated precision and are the targets of the "Hand calculation" checks above. A second, separately coded copy lives in <code>python/make_reference_cases.py</code>, which writes closed-form reference values used by both the JavaScript and Python tests. These copies are <em>numerically</em> independent of the solver but start from the same equations, so they cannot catch a wrong equation; the "Independent physical route" checks above (Young–Laplace curvature, Darcy flow) reach the same results by different physics.</p>
   </div>
 
   <h2 id="dimensions">Dimensional analysis</h2>
@@ -96,10 +96,12 @@ export function render(root) {
     <tr><td>Washburn coefficient</td><td>${tex('r\\sigma\\cos\\theta/(2\\mu)')}</td><td>m·(N/m)/(Pa·s) = m²/s ✓</td></tr>
     <tr><td>Gas pressure</td><td>${tex('p_{g0}L_p/(L_p - L)')}</td><td>Pa·m/m = Pa ✓</td></tr>
     <tr><td>Time scale</td><td>${tex('4\\mu L_p^2/(r^2 P)')}</td><td>Pa·s·m²/(m²·Pa) = s ✓</td></tr>
-    <tr><td>β, λ, cos θ, τ, Re, Ca, Bo</td><td>ratios</td><td>dimensionless ✓</td></tr>
+    <tr><td>Darcy velocity</td><td>${tex('(k/\\mu)\\,\\Delta p/L')}</td><td>m²·Pa/(Pa·s·m) = m/s ✓</td></tr>
+    <tr><td>Bundle permeability</td><td>${tex('\\varepsilon r^2/(8\\tau^2)')}</td><td>m² ✓</td></tr>
+    <tr><td>β, λ, cos θ, τ, ε, Re, Ca, Bo, ρgL/Δp</td><td>ratios</td><td>dimensionless ✓</td></tr>
   </tbody></table></div>
 
-  <h2 id="python">Run the independent Python model in your browser</h2>
+  <h2 id="python">Run the numerically independent Python model in your browser</h2>
   <div class="prose" style="font-size:1.05rem">
     <p>The site's calculations run in JavaScript for speed. A separate Python implementation (<code>python/wetting/model.py</code>) solves the same equations with a <em>different</em> integrator — classical Runge–Kutta 4 with step doubling. It runs here through <a href="https://pyodide.org/">Pyodide</a>, Python compiled to WebAssembly, so nothing is sent to a server. The first run downloads about 10 MB.</p>
   </div>

@@ -8,11 +8,15 @@
 | Newtonian, incompressible liquid; no slip; fully developed laminar (Hagen–Poiseuille) flow | Front speed | Reynolds number |
 | Quasi-steady: inertia neglected | First instants of filling | Inertial time ρr²/μ vs filling time |
 | Static contact angle | Early, fast filling | Capillary number Ca = μv/σ |
-| Gravity neglected | Large pores | Bond number |
+| Gravity neglected | Vertical fronts; large pores | Hydrostatic ratio ρgH/Δp and Jurin height (vertical front); Bond number (meniscus shape) |
 | Continuum, sharp meniscus | Pores below ~10–50 nm | Pore-size flag |
 | Long pore (entrance/meniscus effects neglected) | Short Mode B pores | L_p/r < 20 flag |
-| Tortuosity as a path-length factor τ | Mode A electrode scaling | Labelled as an estimate |
-| Mode B: dead end, isothermal ideal gas, no dissolution, no gas-side drag | Trapping | Labelled as an upper bound |
+| Tortuosity as a path-length factor τ = path ÷ straight line (some texts use its square) | Mode A electrode scaling | Labelled as an estimate; definition stated |
+| Electrode as a capillary bundle, k = εr²/(8τ²); sharp, fully saturated Darcy front | Lesson 7: why Mode A can stand in for an electrode (ε cancels) | Stated; Kozeny–Carman shown as a contrasting model |
+| Gas ahead of the front escapes at constant pressure (Mode A) | Mode A | Stated in lesson 5 |
+| Mode B: dead end, isothermal ideal **non-condensable** gas, no dissolution, no gas-side drag | Trapping | Labelled as an upper bound |
+| Mode B scenario: evacuate, seal the pore mouth with liquid, vent the reservoir to 101.3 kPa | Mode B boundary conditions | Stated in lesson 8 and the parameter notes; dosing under vacuum (before venting) is not modelled |
+| Solvent vapour (DMC ≈ 2.4 kPa at 21 °C) condenses instead of compressing; ignored | Mode B at deep vacuum | Stated in lesson 8; Mode B numbers deliberately unchanged |
 | Liquid at 101.3 kPa abs; 25 °C; properties not temperature-corrected | Mode B, all | Shown as fixed settings |
 
 ## Input values
@@ -29,6 +33,8 @@
 | In-plane wetting distance of a real cell | 1–5 cm | — | **Assumption**; the Weydanz cell dimensions were not extracted |
 
 ## Open scientific questions
+
+0. **Textbook pages.** de Gennes et al. (2004) and Bear (1972/1988) are cited without chapter or page numbers; confirm them from the books before formal submission.
 
 1. **Contact angle on electrodes.** No measured electrolyte–electrode contact angle is cited. Find one (e.g. sessile drop on calendered graphite/NMC) or keep θ as a swept variable.
 2. **Effective pore radius.** Real electrodes have a distribution; capillary pressure favours small pores, flow favours large ones. A single r is a modelling choice.

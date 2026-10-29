@@ -6,6 +6,7 @@ const SHORT = {
   sheng2014: 'Sheng et al., 2014', hofmann2015: 'Hofmann et al., 2015', wang2021: 'Wang et al., 2021',
   washburn1921: 'Washburn, 1921', lucas1918: 'Lucas, 1918', fries2008a: 'Fries & Dreyer, 2008a', fries2008b: 'Fries & Dreyer, 2008b',
   fries2009: 'Fries & Dreyer, 2009', ramakrishnan2019: 'Ramakrishnan et al., 2019', dormand1980: 'Dormand & Prince, 1980',
+  degennes2004: 'de Gennes et al., 2004', bear1972: 'Bear, 1972', sigmadmc2026: 'Sigma-Aldrich DMC data',
 };
 
 export const shortCite = (id) => SHORT[id] || id;

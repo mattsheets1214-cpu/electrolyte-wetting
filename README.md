@@ -10,7 +10,7 @@ The site combines a teaching text with a virtual lab:
 | Overview | The "milliseconds vs. tens of minutes" paradox, as a draggable slide rule of distance vs. filling time, plus a slot for the video explanation |
 | Interactive lab | Mode A (open capillary, exact solution) and Mode B (dead-end pore with trapped gas, numerical ODE), three plots, an animated pore, validity checks, model-vs-reality panel, guided challenge |
 | Theory | Nine lessons from surface tension to trapped gas, plus a quiz |
-| Code & verification | The real solver code, 28 verification checks run live in the browser, convergence data, and an independent Python model run through Pyodide (WebAssembly) |
+| Code & verification | The real solver code, 30 verification checks run live in the browser, convergence data, and an independent Python model run through Pyodide (WebAssembly) |
 | References | Verified bibliography, input-value sources, software, AI models, contribution statement |
 
 All calculations run in the visitor's browser. There is no server, account or API key.
@@ -41,7 +41,7 @@ python python/wetting/model.py          # prints the baseline hand-check numbers
 
 | Suite | Checks |
 |---|---|
-| `tests/verification.test.js` | The 28 checks in `src/physics/checks.js` — the same ones shown live on the Code & verification page |
+| `tests/verification.test.js` | The 30 checks in `src/physics/checks.js` — the same ones shown live on the Code & verification page |
 | `tests/physics.test.js` | Closed-form reference cases (`tests/fixtures/reference_cases.json`), sign conventions, exact Mode B trajectory, validity flags, challenge, sweeps, data files |
 | `tests/pyodide.test.js` | Runs `python/wetting/model.py` inside Pyodide and compares with the JavaScript solver |
 | `tests/content.test.js` | Every lesson has all required parts; every citation resolves; evidence placeholders are not silently filled |

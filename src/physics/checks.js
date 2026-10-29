@@ -7,14 +7,22 @@
  *      browser and shows the actual numbers. Nothing on that page is typed in by hand.
  *
  * Each check returns { pass, measured, expected, detail }.
- * Hand-calculation targets below were computed independently (see
+ * Hand-calculation targets below were computed separately (see
  * docs/VERIFICATION.md) and agree with the project blueprint's values.
+ *
+ * Honesty note on "independence": the hand formulas, the closed-form fixture
+ * script and the Python model are NUMERICALLY independent of the JavaScript
+ * solver (separately coded, different integrators), but they start from the
+ * SAME physical equations, so they cannot catch a wrong equation. The
+ * "Independent physical route" checks below reach the same quantities by a
+ * different derivation (Young–Laplace curvature; Darcy flow), which can.
  */
 import { solveModeA, integrateModeA, capillaryPressure, washburnCoefficient } from './capillary.js';
 import { solveModeB, exactTimeHat } from './deadEnd.js';
 import { validateInputs } from './validation.js';
 import { requiredRadius, requiredGasPressure } from './challenge.js';
 import { P_LIQUID_ABS } from './constants.js';
+import { darcyFrontTime, bundlePermeability } from './porous.js';
 
 /** Baseline illustrative parameter set in SI units. */
 export const BASE = Object.freeze({
@@ -32,7 +40,8 @@ const fmt = (v) => {
   return a !== 0 && (a < 1e-3 || a >= 1e6) ? v.toExponential(4) : Number(v.toPrecision(6)).toString();
 };
 
-/** Independent hand formula for pure capillary filling: t = 2 μ τ² X² / (r σ cos θ). */
+/** Separately coded hand formula for pure capillary filling: t = 2 μ τ² X² / (r σ cos θ).
+ *  Numerically independent of the solver, but the same physics. */
 const handTime = ({ mu, tau, X, r, sigma, thetaDeg }) =>
   (2 * mu * tau * tau * X * X) / (r * sigma * Math.cos((thetaDeg * Math.PI) / 180));
 
@@ -67,7 +76,7 @@ export const CHECKS = [
       const p = { ...BASE, X: c.X, tau: c.tau };
       const t = solveModeA(p).tTarget;
       const hand = handTime(p);
-      return { pass: near(t, hand, 1e-12) && near(t, c.expect, 2e-3), measured: `${fmt(t / c.unit)} ${c.u}`, expected: `${fmt(hand / c.unit)} ${c.u} (independent formula)` };
+      return { pass: near(t, hand, 1e-12) && near(t, c.expect, 2e-3), measured: `${fmt(t / c.unit)} ${c.u}`, expected: `${fmt(hand / c.unit)} ${c.u} (separately coded formula, same physics)` };
     },
   })),
   ...[
@@ -144,6 +153,38 @@ export const CHECKS = [
     },
   },
 
+  // ---------------------------------------------------------------- independent physical routes
+  {
+    id: 'route-curvature-pc', category: 'Independent physical route',
+    title: 'p_c from meniscus curvature (Young–Laplace) equals the contact-line force result',
+    run() {
+      // Young–Laplace: Δp = σ(1/R₁ + 1/R₂). Cylinder: spherical cap, R₁ = R₂ = r/cos θ.
+      // Slit of half-width h: R₁ = h/cos θ, R₂ = ∞. θ = 90°: flat meniscus, Δp = 0.
+      const { sigma, r } = BASE;
+      let worst = 0;
+      for (const th of [0, 30, 60, 89, 120, 150]) {
+        const R = r / Math.cos((th * Math.PI) / 180);
+        worst = Math.max(worst, rel(capillaryPressure(sigma, th, r), sigma * (1 / R + 1 / R)));
+        worst = Math.max(worst, rel(capillaryPressure(sigma, th, r, 'slit'), sigma * (1 / R + 0)));
+      }
+      const flat = capillaryPressure(sigma, 90, r);
+      return { pass: worst < 1e-12 && flat === 0, measured: `max rel. difference ${fmt(worst)}; θ = 90° → ${flat}`, expected: '< 1e-12; 0', detail: 'A second derivation of p_c, from interface curvature instead of the force on the contact line.' };
+    },
+  },
+  {
+    id: 'route-darcy-bundle', category: 'Independent physical route',
+    title: 'Darcy imbibition with a capillary-bundle permeability reproduces Mode A (ε cancels)',
+    run() {
+      // ε = 0.35, τ = 1.6, r = 0.5 µm: k = εr²/(8τ²); Darcy front X² = 2 k p_c t / (ε μ).
+      const tau = 1.6, X = 0.01;
+      const pc = capillaryPressure(BASE.sigma, BASE.thetaDeg, BASE.r);
+      const tModeA = solveModeA({ ...BASE, X, tau }).tTarget;
+      const times = [0.2, 0.35, 0.5].map((eps) => darcyFrontTime({ X, k: bundlePermeability({ eps, r: BASE.r, tau }), eps, mu: BASE.mu, P: pc }));
+      const worst = Math.max(...times.map((t) => rel(t, tModeA)));
+      return { pass: worst < 1e-12 && near(times[1], 176.96, 1e-4), measured: `Darcy t(1 cm) = ${fmt(times[1])} s at ε = 0.35; spread over ε = 0.2–0.5: ${fmt(worst)}`, expected: `${fmt(tModeA)} s (Mode A, τ = 1.6), independent of ε`, detail: 'Porous-medium (Darcy) view and single-pore view agree for this permeability model only.' };
+    },
+  },
+
   // ---------------------------------------------------------------- limiting cases / scaling
   ...[
     { id: 'scale-mu', title: 'Doubling μ doubles the time', change: (p) => ({ ...p, mu: 2 * p.mu }), ratio: 2, base: BASE },
@@ -183,7 +224,7 @@ export const CHECKS = [
   },
   {
     id: 'limit-gas-monotone', category: 'Limiting case',
-    title: 'Lower initial gas pressure → higher equilibrium fill',
+    title: 'Lower initial non-condensable gas pressure → higher equilibrium fill',
     run() {
       const fills = [101.3e3, 50e3, 10e3, 1e3, 100].map((pg0) => solveModeB({ ...BASE, pg0 }).fillNum);
       const pass = fills.every((f, i) => i === 0 || f > fills[i - 1]);

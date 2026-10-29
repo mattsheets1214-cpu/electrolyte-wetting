@@ -2,6 +2,32 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [1.2.0] — 2026-10-29 — Phase 3 of the scientific audit (branch `phase3-audit-fixes`, awaiting review)
+
+Implements the corrections from "Electrolyte Wetting Website — Scientific Audit (Phase 1–2)" (commit 75faa77). No solver equation changed; every number the site displayed before is unchanged except the lesson 1 distance ratio (m5).
+
+### Added
+- Lesson 7: Darcy's law, superficial vs interstitial velocity, sharp-front Darcy imbibition X² = 2k·p_c·t/(εμ), and the capillary-bundle permeability k = εr²/(8τ²) that reduces it to the lab's single-pore formula (porosity cancels; bundle model only). Kozeny–Carman comparison (d = 10 µm, ε = 0.35 → ≈ 48 s to 1 cm vs ≈ 69 s). (M1)
+- `src/physics/porous.js`: closed-form Darcy helpers used only by lesson 7 and the checks. Not a solver; the lab does not call it; Mode A is unchanged.
+- Lesson 4: Young–Laplace derivation from interface curvature (R = r/cos θ; slit R₁ = h/cos θ, R₂ = ∞), definition p_c ≡ p_g − p_ℓ with its sign convention, and capillary vs applied pressure. (M2)
+- Two verification checks in the "Independent physical route" category (curvature-route p_c; Darcy bundle equivalence, 176.96 s at ε = 0.35, τ = 1.6). 30 checks in total.
+- Validity panel: "Gravity on a vertical front" (ρgH/Δp and Jurin height). (m1)
+- References: de Gennes, Brochard-Wyart & Quéré (2004); Bear, *Dynamics of Fluids in Porous Media* (pages to be confirmed for both); Sigma-Aldrich DMC vapour pressure.
+- Tests: curvature-route p_c, Darcy equivalence and Kozeny–Carman, active-mode error isolation, gravity criterion (25 new Vitest tests; 104 total).
+
+### Changed
+- Lessons 2–3: interfacial-tension wording, σ ≡ γ_LG notation note, conditions for Young's equation, real contact angles (hysteresis, roughness, heterogeneity, contamination, measurement time). (M4)
+- Lesson 8, parameter notes, lab text: p_g0 is the initial **non-condensable** gas pressure; the Mode B scenario (evacuate, seal with liquid, vent to 101.3 kPa) is stated; notes on solvent vapour and gas dissolution; which pores are dead ends. (M3, m7)
+- Bond-number check now describes meniscus shape, not vertical filling. (m1)
+- Lab reports input errors for the active mode only (`src/ui/modeErrors.js`). (m3)
+- Lesson 5 radial coordinate renamed r′ (ρ is density); Washburn assumption list completed. (m4, m11)
+- Lesson 1 distance ratio computed: 714 and ≈ 510 000 (was 700 / 500 000 / 490 000). (m5)
+- Overview no longer says vacuum filling is used "for exactly the reason Mode B shows". (m6)
+- Tortuosity definition stated (path ÷ straight line; some texts use its square). (m10)
+- Constants imported instead of typed (lesson 5 example, lab challenge). (m8)
+- "Independent" reworded to "numerically independent" where the checks share the solver's equations (checks.js, quiz Q6, verification page). (m2)
+- Capillary-number threshold described as a rough rule of thumb. (m12)
+
 ## [1.1.0] — 2026-10-29
 
 ### Removed (requested by the owner)

@@ -97,7 +97,7 @@ export function render(root) {
   <section class="facts" aria-label="What the lab does">
     <div><h3>What the lab predicts</h3><p>Capillary pressure, the Washburn coefficient, the idealized time to reach any distance, and — for a dead-end pore — how much trapped gas limits filling and how long equilibrium takes.</p></div>
     <div><h3>What it assumes</h3><p>One straight or tortuous cylindrical pore, laminar Newtonian flow, a static contact angle, isothermal gas, no gravity. Every assumption is checked live and flagged when it is stretched.</p></div>
-    <div><h3>Why it matters</h3><p>Filling time sets throughput on a cell production line, and trapped gas leaves pores dry. Manufacturers evacuate cells before filling for exactly the reason Mode B shows.</p></div>
+    <div><h3>Why it matters</h3><p>Filling time sets throughput on a cell production line, and trapped gas leaves pores dry. Removing gas before filling is one reason manufacturers evacuate cells, and Mode B illustrates it with one idealized dead-end pore.</p></div>
   </section>
 
   <section aria-labelledby="gas-h">

@@ -55,25 +55,25 @@ export const PARAMETERS = {
     label: 'Tortuosity', symbol: 'τ', unit: '–', toSI: 1,
     default: 1, min: 1, max: 5, step: 0.05, scale: 'linear', modes: ['A'],
     basis: 'assumption',
-    note: 'Path-length ratio (actual path ÷ straight line). An idealized correction, not a material constant. τ = 1 means a straight pore.',
+    note: 'Path-length ratio (actual path ÷ straight line); time scales with τ². Some texts call the square of this ratio the tortuosity, so check the definition before comparing values. An idealized correction, not a material constant. τ = 1 means a straight pore.',
   },
   pg0: {
-    label: 'Initial trapped-gas pressure', symbol: 'p_g0', unit: 'kPa abs', toSI: 1e3,
+    label: 'Initial non-condensable gas pressure', symbol: 'p_g0', unit: 'kPa abs', toSI: 1e3,
     default: 101.3, min: 0.1, max: 101.3, step: 0.1, scale: 'log', modes: ['B'],
     basis: 'assumption',
-    note: 'ABSOLUTE pressure of the gas in the pore when filling starts. 101.3 kPa = filled at atmospheric pressure; lower values represent evacuating the cell before filling.',
+    note: 'ABSOLUTE pressure of the non-condensable gas (air, argon, nitrogen) sealed in the pore when liquid covers its mouth. 101.3 kPa = filled at atmospheric pressure; lower values represent evacuating the dry cell first. Solvent vapour (DMC ≈ 2.4 kPa at 21 °C) condenses rather than compressing, and gas dissolution is ignored.',
   },
   Lp: {
     label: 'Dead-end pore length', symbol: 'L_p', unit: 'µm', toSI: 1e-6,
     default: 70, min: 1, max: 100000, step: 1, scale: 'log', modes: ['B'],
     basis: 'assumption',
-    note: 'Illustrative: 70 µm ≈ one electrode coating thickness. The equilibrium fill fraction does not depend on L_p; only the time does (t ∝ L_p²).',
+    note: 'Illustrative: 70 µm ≈ one electrode coating thickness, e.g. a pore through the coating closed by the current-collector foil. The equilibrium fill fraction does not depend on L_p; only the time does (t ∝ L_p²).',
   },
 };
 
 /** Fixed (not user-editable) settings shown on the site. */
 export const FIXED = {
-  pL: { label: 'Liquid-side absolute pressure (Mode B)', value: P_LIQUID_ABS, display: '101.3 kPa abs', basis: 'assumption', note: 'Liquid reservoir at atmospheric pressure, as specified in the project brief.' },
+  pL: { label: 'Liquid-side absolute pressure (Mode B)', value: P_LIQUID_ABS, display: '101.3 kPa abs', basis: 'assumption', note: 'Liquid reservoir at atmospheric pressure, as specified in the project brief: the pore gas is sealed at p_g0, then the reservoir is vented to 101.3 kPa.' },
   temperature: { label: 'Temperature', value: 25, display: '25 °C', basis: 'assumption', note: 'Properties are not temperature-corrected.' },
 };
 

@@ -19,6 +19,8 @@ import { PoreAnimation, interp } from '../animations/pore.js';
 import { tex, texBlock } from '../ui/math.js';
 import { esc, rafThrottle } from '../ui/dom.js';
 import { pulse } from '../animations/motion.js';
+import { errorsForMode } from '../ui/modeErrors.js';
+import { BASE } from '../physics/checks.js';
 
 const LEVEL_TEXT = { ok: 'OK', caution: 'Caution', warn: 'Warning', info: 'Note' };
 
@@ -87,7 +89,7 @@ export function render(root) {
 
       <h2 id="plot-3">Plot 3 · Trapped gas and vacuum</h2>
       <figure class="figure"><div class="figure__well figure__well--plain"><div data-role="plot3"></div></div>
-        <figcaption>Equilibrium fill fraction of one idealized dead-end pore against the initial absolute gas pressure. The line is the exact formula 1 − p<sub>g0</sub>/(p<sub>L</sub> + p<sub>c</sub>); squares are where the numerical ODE solution actually stopped. Real, connected electrodes trap much less gas than this worst case, because gas can escape through neighbouring unfilled pores.</figcaption></figure>
+        <figcaption>Equilibrium fill fraction of one idealized dead-end pore against the initial absolute pressure of the non-condensable gas sealed in it (p<sub>g0</sub>; solvent vapour and gas dissolution are not modelled). The line is the exact formula 1 − p<sub>g0</sub>/(p<sub>L</sub> + p<sub>c</sub>); squares are where the numerical ODE solution actually stopped. Real, connected electrodes trap much less gas than this worst case, because gas can escape through neighbouring unfilled pores.</figcaption></figure>
 
       <h2 id="validity">Is the model valid here?</h2>
       <ul class="validity" data-role="validity"></ul>
@@ -152,7 +154,7 @@ export function render(root) {
   const plot1b = createPlot(root.querySelector('[data-role=plot1b]'), { xLabel: 't', yLabel: 'p_g (kPa abs)', height: 220, yZero: false });
   const plot2 = createPlot(root.querySelector('[data-role=plot2]'), { xLabel: '', yLabel: 'time to target (s)', xScale: 'log', yScale: 'log', height: 300 });
   const plot3 = createPlot(root.querySelector('[data-role=plot3]'), {
-    xLabel: 'initial gas pressure p_g0 (kPa abs)', yLabel: 'equilibrium fill (%)', xScale: 'log', height: 300,
+    xLabel: 'initial non-condensable gas pressure p_g0 (kPa abs)', yLabel: 'equilibrium fill (%)', xScale: 'log', height: 300,
     xFormat: (v) => String(Number(v.toPrecision(3))), tipX: (v) => `${sig(v, 3)} kPa`, tipY: (v) => `${sig(v, 4)} %`,
   });
   const sweepSel = root.querySelector('#sweep-sel');
@@ -182,14 +184,15 @@ export function render(root) {
     const p = toSIParams(state.values);
     const resA = solveModeA(p);
     const resB = solveModeB(p);
-    const errs = [...(resA.ok ? [] : resA.errors), ...(resB.ok ? [] : resB.errors)];
-    const uniq = errs.filter((e, i) => errs.findIndex((q) => q.field === e.field) === i);
+    // Only the active mode's errors (shared fields are checked by both modes).
+    const uniq = errorsForMode(state.mode, resA, resB);
     showErrors(uniq);
     if (uniq.length) { outputs.innerHTML = ''; explain.textContent = ''; return; }
 
     if (state.mode === 'A') renderModeA(p, resA); else renderModeB(p, resB);
-    renderPlot2(p);
-    renderPlot3(p, resB);
+    // A plot that belongs to the other mode is drawn only when that mode's inputs are valid.
+    if (resA.ok) renderPlot2(p); else plot2.update({ series: [] });
+    if (resB.ok) renderPlot3(p, resB); else plot3.update({ series: [] });
     pulse(outputs.querySelector('.out--primary'));
   }
   const schedule = rafThrottle(update);
@@ -244,7 +247,7 @@ export function render(root) {
       targetLabel: `target ${formatLength(p.X).text}`,
     });
     animCap.textContent = 'The open end lets gas escape freely, so the drive stays constant.';
-    validityList.innerHTML = renderValidity(validityChecks(p, { mode: 'A', D: a.D, Lref: a.Lpath, tRef: a.tTarget }));
+    validityList.innerHTML = renderValidity(validityChecks(p, { mode: 'A', D: a.D, Lref: a.Lpath, tRef: a.tTarget, height: p.X }));
   }
 
   function renderModeB(p, b) {
@@ -263,7 +266,7 @@ export function render(root) {
       out('Capillary pressure', sig(b.pc / 1e3, 4), 'kPa', '2σ cos θ / r'),
       out('Final gas pressure', sig((p.pg0 / (1 - b.fillNum)) / 1e3, 4), 'kPa abs', `p_L + p_c = ${sig(b.P / 1e3, 4)} kPa`),
     ].join('');
-    explain.innerHTML = `Gas starts at ${sig(p.pg0 / 1e3, 3)} kPa absolute. The liquid side pushes with p<sub>L</sub> + p<sub>c</sub> = ${sig(b.P / 1e3, 4)} kPa. As the liquid advances the gas is squeezed (Boyle's law) until its pressure matches that push, which happens when the pore is <strong>${sig(b.fillEq * 100, 4)} %</strong> full. ${p.pg0 > 20e3 ? 'Lowering the initial gas pressure — evacuating before filling — is the only way to fill it further in this model.' : 'Because so little gas was left, the liquid nearly reaches the dead end.'} The fill fraction does not depend on viscosity or pore length; the time does (t ∝ μL<sub>p</sub>²).`;
+    explain.innerHTML = `Non-condensable gas is sealed in the pore at ${sig(p.pg0 / 1e3, 3)} kPa absolute; the reservoir is then vented to atmosphere. The liquid side pushes with p<sub>L</sub> + p<sub>c</sub> = ${sig(b.P / 1e3, 4)} kPa. As the liquid advances the gas is squeezed (Boyle's law) until its pressure matches that push, which happens when the pore is <strong>${sig(b.fillEq * 100, 4)} %</strong> full. ${p.pg0 > 20e3 ? 'Lowering the initial gas pressure — evacuating before filling — is the only way to fill it further in this model.' : 'Because so little gas was left, the liquid nearly reaches the dead end.'} The fill fraction does not depend on viscosity or pore length; the time does (t ∝ μL<sub>p</sub>²).`;
 
     // Plot 1: exact trajectory + numerical points
     const ex = exactTrajectoryB(b, p.Lp);
@@ -333,7 +336,7 @@ export function render(root) {
       marker: b.ok && b.fills ? { x: p.pg0 / 1e3, y: b.fillNum * 100, color: 'var(--gas)' } : null,
       yDomain: [0, 100],
       xDomain: [0.1, 101.3],
-      description: 'Fill fraction falls as the initial gas pressure rises.',
+      description: 'Fill fraction falls as the initial non-condensable gas pressure rises.',
     });
   }
 
@@ -348,7 +351,7 @@ export function render(root) {
 
 // ------------------------------------------------------------------ challenge
 function renderChallenge(host) {
-  const base = { sigma: 29.4e-3, thetaDeg: 30, mu: 4.4e-3 };
+  const base = { sigma: BASE.sigma, thetaDeg: BASE.thetaDeg, mu: BASE.mu }; // the illustrative baseline
   const r1 = requiredRadius({ X: 0.04, tMax: 1800, ...base });
   const r2 = requiredRadius({ X: 0.04, tMax: 1800, ...base, mu: 8e-3 });
   const g = r1.feasible ? requiredGasPressure({ fillTarget: 0.95, pL: P_LIQUID_ABS, sigma: base.sigma, thetaDeg: base.thetaDeg, r: r1.r }) : { feasible: false };
@@ -365,7 +368,7 @@ function renderChallenge(host) {
     <div class="quiz-q"><label for="ch2"><b>2.</b> The maker switches to a more viscous electrolyte, μ = 8 mPa·s. What is the smallest radius now?</label>
       <div class="btn-row" style="margin-top:6px"><input id="ch2" type="number" step="any" inputmode="decimal"> <span>µm</span> <button class="btn" type="button" data-check="2">Check</button></div>
       <div class="quiz-fb" data-fb="2" hidden></div></div>
-    <div class="quiz-q"><label for="ch3"><b>3.</b> Using your radius from part 1, what is the highest initial gas pressure (absolute) that keeps gas trapping in an idealized dead-end pore below 5 %? (p<sub>L</sub> = 101.3 kPa)</label>
+    <div class="quiz-q"><label for="ch3"><b>3.</b> Using your radius from part 1, what is the highest initial non-condensable gas pressure (absolute) that keeps gas trapping in an idealized dead-end pore below 5 %? (p<sub>L</sub> = 101.3 kPa)</label>
       <div class="btn-row" style="margin-top:6px"><input id="ch3" type="number" step="any" inputmode="decimal"> <span>kPa abs</span> <button class="btn" type="button" data-check="3">Check</button></div>
       <div class="quiz-fb" data-fb="3" hidden></div></div>
     <details class="check"><summary>Show the worked solution</summary>

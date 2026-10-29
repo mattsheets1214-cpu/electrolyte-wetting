@@ -48,7 +48,7 @@ export const QUIZ = [
     options: [
       { text: 'That the model predicts real cell filling times.', why: 'That would be validation, which needs measurements of a specific cell\'s pore structure, contact angle and wetting time.' },
       { text: 'That the code correctly solves the stated equations.', correct: true, why: 'Right — that is verification. Whether the equations describe reality is a separate question.' },
-      { text: 'Nothing, because the tests were written by the same people as the code.', why: 'Independent checks (hand calculations, exact solutions, a separate Python solver, SciPy) make the tests meaningful, even if written by the same team.' },
+      { text: 'Nothing, because the tests were written by the same people as the code.', why: 'Too pessimistic. Separately coded hand calculations, exact solutions, a separate Python solver and SciPy are numerically independent checks: they would catch a coding or integration error. They share the same equations, though, so a wrong equation needs a physically independent route — such as deriving p_c from curvature or the electrode result from Darcy flow — or a comparison with experiment.' },
     ],
   },
 ];

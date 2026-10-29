@@ -142,3 +142,109 @@ describe('formatting and data files', () => {
     }
   });
 });
+
+// ------------------------------------------------------------------ Phase 3 audit tests
+import {
+  darcyFrontTime, darcyFlowRate, bundlePermeability, kozenyCarman, capillaryPressureHydraulic, gravityCheck,
+} from '../src/physics/index.js';
+import { errorsForMode } from '../src/ui/modeErrors.js';
+
+describe('audit M2: capillary pressure from Young–Laplace curvature', () => {
+  // Δp = σ(1/R₁ + 1/R₂); cylinder: spherical cap R₁ = R₂ = r/cos θ; slit: R₁ = h/cos θ, R₂ = ∞.
+  const yl = (sigma, R1, R2) => sigma * (1 / R1 + 1 / R2);
+  for (const th of [0, 30, 60, 120]) {
+    it(`cylinder, θ = ${th}°`, () => {
+      const R = BASE.r / Math.cos((th * Math.PI) / 180);
+      expect(relErr(capillaryPressure(BASE.sigma, th, BASE.r), yl(BASE.sigma, R, R))).toBeLessThan(1e-12);
+    });
+    it(`slit, θ = ${th}°`, () => {
+      const R1 = BASE.r / Math.cos((th * Math.PI) / 180);
+      expect(relErr(capillaryPressure(BASE.sigma, th, BASE.r, 'slit'), yl(BASE.sigma, R1, Infinity))).toBeLessThan(1e-12);
+    });
+  }
+  it('hand value at the baseline: 2(0.0294)cos30°/0.5 µm = 101 845 Pa', () => {
+    expect(relErr(capillaryPressure(0.0294, 30, 0.5e-6), 101845.3)).toBeLessThan(1e-5);
+  });
+  it('hydraulic-radius form σcosθ/r_h equals 2σcosθ/r for a cylinder (r_h = r/2)', () => {
+    expect(relErr(capillaryPressureHydraulic(BASE.sigma, 30, BASE.r / 2), capillaryPressure(BASE.sigma, 30, BASE.r))).toBeLessThan(1e-12);
+  });
+});
+
+describe('audit M1: Darcy flow and the capillary-bundle equivalence', () => {
+  const pc = capillaryPressure(BASE.sigma, BASE.thetaDeg, BASE.r);
+  it('ε = 0.35, τ = 1.6, r = 0.5 µm: Darcy front reaches 1 cm in 176.96 s, equal to Mode A', () => {
+    const k = bundlePermeability({ eps: 0.35, r: BASE.r, tau: 1.6 });
+    const tD = darcyFrontTime({ X: 0.01, k, eps: 0.35, mu: BASE.mu, P: pc });
+    const tA = solveModeA({ ...BASE, X: 0.01, tau: 1.6 }).tTarget;
+    expect(Math.abs(tD - 176.96)).toBeLessThan(0.01);
+    expect(relErr(tD, tA)).toBeLessThan(1e-12);
+  });
+  it('porosity cancels for the bundle model', () => {
+    const t = (eps) => darcyFrontTime({ X: 0.01, k: bundlePermeability({ eps, r: BASE.r, tau: 1.6 }), eps, mu: BASE.mu, P: pc });
+    expect(relErr(t(0.2), t(0.5))).toBeLessThan(1e-12);
+  });
+  it('Kozeny–Carman (d = 10 µm, ε = 0.35) gives a different time, about 48 s to 1 cm', () => {
+    const kc = kozenyCarman({ eps: 0.35, d: 10e-6 });
+    const t = darcyFrontTime({ X: 0.01, k: kc.k, eps: 0.35, mu: BASE.mu, P: capillaryPressureHydraulic(BASE.sigma, BASE.thetaDeg, kc.rh) });
+    expect(t).toBeGreaterThan(47); expect(t).toBeLessThan(49);
+    expect(relErr(t, solveModeA({ ...BASE, X: 0.01 }).tTarget)).toBeGreaterThan(0.2);
+  });
+  it('steady slab flow Q = kAΔp/(μL) has the right units and scaling', () => {
+    const q1 = darcyFlowRate({ k: 1e-14, A: 1e-4, dp: 5e4, mu: 4.4e-3, L: 70e-6 });
+    expect(relErr(q1, (1e-14 * 1e-4 * 5e4) / (4.4e-3 * 70e-6))).toBeLessThan(1e-12);
+    expect(relErr(darcyFlowRate({ k: 1e-14, A: 1e-4, dp: 1e5, mu: 4.4e-3, L: 70e-6 }), 2 * q1)).toBeLessThan(1e-12);
+  });
+  it('no positive drive → the Darcy front never arrives (no negative time)', () => {
+    expect(darcyFrontTime({ X: 0.01, k: 1e-14, eps: 0.35, mu: BASE.mu, P: -1e3 })).toBe(Infinity);
+  });
+});
+
+describe('audit m3: errors are reported only for the active mode', () => {
+  const bad = { ...BASE, r: 2e-6, Lp: 1e-6 }; // L_p ≤ r: invalid for Mode B only
+  const resA = solveModeA(bad), resB = solveModeB(bad);
+  it('L_p = 1 µm with r = 2 µm does not blank Mode A', () => {
+    expect(resA.ok).toBe(true);
+    expect(resB.ok).toBe(false);
+    expect(errorsForMode('A', resA, resB)).toEqual([]);
+  });
+  it('the same inputs are still reported in Mode B, on the L_p field', () => {
+    expect(errorsForMode('B', resA, resB).map((e) => e.field)).toContain('Lp');
+  });
+  it('a bad shared input (r = 0) is reported in both modes', () => {
+    const p = { ...BASE, r: 0 };
+    for (const m of ['A', 'B']) expect(errorsForMode(m, solveModeA(p), solveModeB(p)).map((e) => e.field)).toContain('r');
+  });
+});
+
+describe('audit m1: gravity criterion for a vertical front', () => {
+  const ctxFor = (p) => { const a = solveModeA(p); return { mode: 'A', D: a.D, Lref: a.Lpath, tRef: a.tTarget, height: p.X }; };
+  it('ratio = ρgL/Δp and Jurin height = 2σcosθ/(ρgr), checked by hand at the baseline', () => {
+    const g = gravityCheck(BASE, ctxFor(BASE));
+    const pc = (2 * 0.0294 * Math.cos(Math.PI / 6)) / 0.5e-6;
+    expect(relErr(g.ratio, (1303 * 9.81 * 0.01) / pc)).toBeLessThan(1e-9);
+    expect(relErr(g.hJurin, pc / (1303 * 9.81))).toBeLessThan(1e-9);
+    expect(g.hJurin).toBeGreaterThan(7); // ≈ 8 m: negligible over centimetres
+  });
+  it('baseline is "ok"; a 5 µm pore over 10 cm is flagged (ρgL/Δp ≈ 0.13)', () => {
+    const lvl = (p) => validityChecks(p, ctxFor(p)).find((c) => c.id === 'gravity').level;
+    expect(lvl(BASE)).toBe('ok');
+    const big = { ...BASE, r: 5e-6, X: 0.1 };
+    expect(gravityCheck(big, ctxFor(big)).ratio).toBeGreaterThan(0.1);
+    expect(lvl(big)).toBe('warn');
+  });
+  it('the head uses the vertical rise X, not the tortuous path τX', () => {
+    const p = { ...BASE, tau: 2 };
+    const a = solveModeA(p);
+    expect(relErr(gravityCheck(p, ctxFor(p)).head, 1303 * 9.81 * p.X)).toBeLessThan(1e-12);
+    expect(a.Lpath).toBeCloseTo(2 * p.X, 12);
+  });
+  it('applied pressure counts in the drive, so it reduces the gravity ratio', () => {
+    const p = { ...BASE, dpApplied: 100e3 };
+    expect(gravityCheck(p, ctxFor(p)).ratio).toBeLessThan(gravityCheck(BASE, ctxFor(BASE)).ratio);
+  });
+  it('the Bond-number check is kept and now describes meniscus shape', () => {
+    const bond = validityChecks(BASE, ctxFor(BASE)).find((c) => c.id === 'bond');
+    expect(bond.title).toMatch(/Meniscus shape/);
+    expect(bond.detail).not.toMatch(/vertical pore would fill more slowly/);
+  });
+});

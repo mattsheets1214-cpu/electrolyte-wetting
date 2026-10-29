@@ -22,7 +22,7 @@ export function requiredRadius({ X, tMax, sigma, thetaDeg, mu, tau = 1 }) {
 
 // #region required-gas-pressure
 /**
- * Highest initial trapped-gas pressure (absolute) that keeps the idealized
+ * Highest initial non-condensable gas pressure (absolute) that keeps the idealized
  * dead-end pore at least `fillTarget` full:
  *   L_eq/L_p = 1 − p_g0/(p_L + p_c) ≥ f   →   p_g0 ≤ (1 − f)(p_L + p_c)
  */
