@@ -1,0 +1,108 @@
+/*
+ * tokens.css — the design system. Colours carry PHYSICAL MEANING and are
+ * used consistently in every diagram, animation and plot:
+ *   --liquid  electrolyte (cobalt)
+ *   --gas     gas / vacuum (amber)
+ *   --solid   electrode material (graphite)
+ * Change a colour here and every figure follows.
+ */
+:root {
+  color-scheme: light dark;
+
+  --paper: #f2f4f1;          /* separator-film off-white (cool, not cream) */
+  --paper-2: #e7eae5;        /* recessed surfaces, figure wells */
+  --surface: #fbfcfa;        /* raised panels */
+  --ink: #1b1f24;            /* graphite text */
+  --ink-2: #4a525c;          /* secondary text */
+  --ink-3: #6f7782;          /* tertiary text, axis labels */
+  --rule: #c6ccc6;           /* 1px structural rules */
+  --rule-2: #dde1dc;         /* faint grid */
+
+  --liquid: #2350c4;         /* electrolyte */
+  --liquid-soft: #c9d6f4;
+  --liquid-ink: #193d99;
+  --gas: #b97a00;            /* trapped gas, vacuum */
+  --gas-soft: #f3e2b8;
+  --solid: #3a3f46;          /* graphite electrode particles */
+  --solid-soft: #aab0b6;
+  --copper: #a8592b;         /* current-collector foil (diagrams only) */
+
+  --ok: #2f7d4f;
+  --caution: #9a6a00;
+  --warn: #b3261e;
+  --info: #4a525c;
+
+  --font-read: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-code: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Modular scale, ratio 1.2 from 17px body */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.275rem;
+  --step-2: 1.53rem;
+  --step-3: 1.836rem;
+  --step-4: 2.2rem;
+  --step-5: 2.64rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius: 3px;
+  --measure: 66ch;
+  --page: 1240px;
+  --focus: 0 0 0 3px color-mix(in srgb, var(--liquid) 45%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --paper: #16191d;
+    --paper-2: #1d2126;
+    --surface: #1f2328;
+    --ink: #e5e8e3;
+    --ink-2: #b3bac2;
+    --ink-3: #8c949e;
+    --rule: #3a4048;
+    --rule-2: #2a2f35;
+    --liquid: #6f97f2;
+    --liquid-soft: #24345c;
+    --liquid-ink: #a9c1f7;
+    --gas: #e0a93c;
+    --gas-soft: #4a3a17;
+    --solid: #9aa1a9;
+    --solid-soft: #4d535a;
+    --copper: #d08955;
+    --ok: #6cc08e;
+    --caution: #e0b54a;
+    --warn: #f08a80;
+    --info: #b3bac2;
+  }
+}
+:root[data-theme='dark'] {
+  --paper: #16191d;
+  --paper-2: #1d2126;
+  --surface: #1f2328;
+  --ink: #e5e8e3;
+  --ink-2: #b3bac2;
+  --ink-3: #8c949e;
+  --rule: #3a4048;
+  --rule-2: #2a2f35;
+  --liquid: #6f97f2;
+  --liquid-soft: #24345c;
+  --liquid-ink: #a9c1f7;
+  --gas: #e0a93c;
+  --gas-soft: #4a3a17;
+  --solid: #9aa1a9;
+  --solid-soft: #4d535a;
+  --copper: #d08955;
+  --ok: #6cc08e;
+  --caution: #e0b54a;
+  --warn: #f08a80;
+  --info: #b3bac2;
+}
