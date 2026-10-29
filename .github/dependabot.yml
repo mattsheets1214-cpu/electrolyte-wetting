@@ -1,0 +1,10 @@
+# Opens pull requests (never merges) when GitHub Actions or npm packages have updates.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 3

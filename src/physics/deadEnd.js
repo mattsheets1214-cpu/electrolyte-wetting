@@ -74,7 +74,9 @@ export function solveModeB(p, opts = {}) {
   // so the numerical end state remains an independent check of 1 − β.
   // For β = 0 (perfect vacuum) there is no equilibrium inside the pore: stop
   // when the front is within 1e-9 L_p of the dead end.
-  const stopTol = opts.stopTol ?? 1e-9;
+  // The stop threshold follows the solver tolerance: asking for less than the
+  // integrator can resolve would never be satisfied.
+  const stopTol = opts.stopTol ?? Math.max(1e-9, 10 * (opts.rtol ?? 1e-10));
   const dfdy = (y) => { const l = Math.sqrt(y); return -beta / ((1 - l) * (1 - l) * 2 * l); };
   const stop = (_t, y, dydt) => {
     if (beta === 0) return Math.sqrt(y) >= 1 - 1e-9;

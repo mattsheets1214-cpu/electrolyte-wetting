@@ -25,7 +25,12 @@ export const BASE = Object.freeze({
 
 const rel = (a, b) => Math.abs(a - b) / Math.abs(b);
 const near = (a, b, tol) => rel(a, b) <= tol;
-const fmt = (v) => (typeof v === 'number' ? (Number.isFinite(v) ? Number(v.toPrecision(6)).toString() : String(v)) : String(v));
+const fmt = (v) => {
+  if (typeof v !== 'number') return String(v);
+  if (!Number.isFinite(v)) return String(v);
+  const a = Math.abs(v);
+  return a !== 0 && (a < 1e-3 || a >= 1e6) ? v.toExponential(4) : Number(v.toPrecision(6)).toString();
+};
 
 /** Independent hand formula for pure capillary filling: t = 2 μ τ² X² / (r σ cos θ). */
 const handTime = ({ mu, tau, X, r, sigma, thetaDeg }) =>
@@ -201,7 +206,7 @@ export const CHECKS = [
     title: 'Tightening solver tolerance converges t₉₅ to the exact value',
     run() {
       const errs = [1e-4, 1e-6, 1e-8, 1e-10].map((rtol) => { const b = solveModeB({ ...BASE }, { rtol, atol: rtol * 1e-4 }); return rel(b.t95Num, b.t95Exact); });
-      const pass = errs[3] < 1e-7 && errs[3] <= errs[0];
+      const pass = errs[3] < 1e-7 && errs.every((e, i) => i === 0 || e < errs[i - 1]);
       return { pass, measured: errs.map((e) => fmt(e)).join(' → '), expected: 'error falls as rtol = 1e-4 → 1e-10' };
     },
   },

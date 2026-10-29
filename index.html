@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electrolyte Wetting — why do lithium-ion cells take so long to fill?</title>
+    <meta name="description" content="An interactive fluid mechanics lab: surface tension, contact angle, Young–Laplace capillary pressure, Washburn filling and trapped gas in lithium-ion battery electrodes." />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script>
+      // Apply a saved theme before first paint (per-visitor preference only).
+      try { const t = localStorage.getItem('ew-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="wordmark" href="#/overview" aria-label="Electrolyte Wetting, overview">
+          <svg viewBox="0 0 26 26" aria-hidden="true">
+            <rect x="1" y="7" width="24" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />
+            <path d="M1.7 7.7h12.3q-3 5.3 0 10.6H1.7z" fill="var(--liquid)" />
+          </svg>
+          Electrolyte Wetting
+        </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+        <nav class="nav" id="primary-nav" aria-label="Primary">
+          <a href="#/overview">Overview</a>
+          <a href="#/lab">Interactive lab</a>
+          <a href="#/theory">Theory</a>
+          <a href="#/verification">Code &amp; verification</a>
+          <a href="#/ai-lab">AI lab</a>
+          <a href="#/presentation">Presentation</a>
+          <a href="#/references">References</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Switch colour theme">Theme</button>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="page" id="app" aria-live="polite">
+        <p class="muted">Loading the lab…</p>
+        <noscript>
+          <p>This site needs JavaScript for its calculations and plots. The theory, assumptions and references are also in the repository's <code>docs/</code> folder.</p>
+        </noscript>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <span>University of Cincinnati · Introductory fluid mechanics project by Matthew Sheets, 2026</span>
+        <span>Idealized model for teaching — not a prediction for any specific battery cell.</span>
+      </div>
+    </footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
