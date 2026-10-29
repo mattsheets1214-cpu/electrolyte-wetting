@@ -6,7 +6,7 @@ This file tells an AI coding assistant (Claude Code, Copilot, Cursor, …) and a
 
 A static, client-side teaching website for an introductory fluid mechanics course (University of Cincinnati, 2026, author Matthew Sheets): why lithium-ion cells take tens of minutes to wet with electrolyte although one pore fills in milliseconds. Priority order: **correct physics → clear teaching → working interactivity → honest verification/validation → design → easy editing.**
 
-Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
+Pages: Overview, Interactive lab, Theory, Code & verification, References. Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `ma
   - `challenge.js` inverse problems with feasibility checks. `sweeps.js` data for Plots 2 and 3.
   - `checks.js` **the verification suite**, run by Vitest *and* live on the Code & verification page.
 - `src/data/parameters.js` every lab input: unit, range, default, `basis` (`measured` / `assumption` / `geometry`) and source note. `presets.js` scenarios.
-- `src/content/` all editable text: `lessons.js` (9 lessons, required fields enforced by tests), `quiz.js`, `references.js`, `aiLab.js`, `presentation.js`, `modelVsReality.js`.
+- `src/content/` all editable text: `lessons.js` (9 lessons, required fields enforced by tests), `quiz.js`, `references.js`, `video.js` (YouTube id for the Overview video slot), `modelVsReality.js`.
 - `src/charts/plot.js` small SVG plotting module (linear/log axes, legend with line styles, tooltips, keyboard).
 - `src/diagrams/index.js` SVG diagrams drawn from geometry. `src/animations/pore.js` physics-linked animation (Anime.js Timer for playback); `motion.js` page/figure motion (Motion). Both degrade gracefully if the library fails and respect `prefers-reduced-motion`.
 - `python/wetting/model.py` independent reference implementation (standard library only; RK4 with step doubling). Runs in the browser through Pyodide (loaded on demand from jsDelivr, version pinned in `src/sections/verification.js`) and in pytest.
@@ -41,7 +41,7 @@ Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `ma
 
 1. Never invent experimental data, references, DOIs, URLs, quotes, transcripts, video ids, AI critiques, test results or personal reflections.
 2. Every numerical input must have a source in `src/content/references.js` or be labelled `assumption`.
-3. Evidence that has not been collected stays `null` / `[]` in `src/content/aiLab.js` and `presentation.js`; the UI then shows "Not yet collected". `tests/content.test.js` guards this — update that test deliberately when real evidence is added.
+3. The video id in `src/content/video.js` stays `null` until a real video exists; the Overview then shows an empty, labelled slot. `tests/content.test.js` guards this — update that test deliberately when the real id is added. The AI-lab and Presentation pages were removed at the owner's request (2026-10-29); do not re-add them unless asked.
 4. Code shown on the site is cut from the real source using `// #region name` … `// #endregion` markers (see `region()` in `src/sections/verification.js`). If you rename or remove a region, update the page.
 5. Plots, outputs and animations must come from the solver. No hard-coded results.
 6. Distinguish verification (code solves its equations) from validation (equations describe reality).
@@ -65,7 +65,7 @@ Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `ma
 | New plot | compute data in `src/physics/sweeps.js` (tested), draw with `createPlot` in a section |
 | Improve an animation | `src/animations/pore.js`; keep it driven by solver output and keep reduced-motion behaviour |
 | Fix a numerical error | `src/physics/`, plus a regression check in `checks.js` |
-| Add AI-lab evidence / video / transcript | `src/content/aiLab.js`, `src/content/presentation.js`, files in `public/evidence/` |
+| Add the video explanation | `src/content/video.js` |
 
 ## Do not
 

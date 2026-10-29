@@ -1,6 +1,5 @@
 /** References & credits. Data: src/content/references.js */
-import { REFERENCES, SOFTWARE, DESIGN_INSPIRATION, UNVERIFIED } from '../content/references.js';
-import { AI_LAB } from '../content/aiLab.js';
+import { REFERENCES, SOFTWARE, DESIGN_INSPIRATION, UNVERIFIED, AI_MODELS } from '../content/references.js';
 import { PARAMETERS } from '../data/parameters.js';
 import { esc } from '../ui/dom.js';
 
@@ -29,7 +28,7 @@ export function render(root) {
   <ul class="refs">${SOFTWARE.map((s) => `<li><a href="${s.url}">${esc(s.name)}</a> — ${esc(s.role)}</li>`).join('')}</ul>
 
   <h2>AI models</h2>
-  <ul class="refs">${AI_LAB.models.map((m) => `<li>${esc(m.role)}: ${m.name ? `${esc(m.name)} (${esc(m.provider)}, <code>${esc(m.version)}</code>), ${esc(m.date)}` : '<span class="badge badge--pending">not yet recorded</span>'}</li>`).join('')}</ul>
+  <ul class="refs">${AI_MODELS.map((m) => `<li>${esc(m.role)}: ${esc(m.name)} (${esc(m.provider)}, <code>${esc(m.version)}</code>), ${esc(m.date)}</li>`).join('')}</ul>
 
   <h2>Design inspiration</h2>
   <ul class="refs">${DESIGN_INSPIRATION.map((d) => `<li>${d.url ? `<a href="${d.url}">${esc(d.name)}</a>` : esc(d.name)} — ${esc(d.note)}</li>`).join('')}</ul>
@@ -37,7 +36,7 @@ export function render(root) {
   <h2>Contribution statement</h2>
   <div class="prose">
     <p>This is an individual project by Matthew Sheets (University of Cincinnati, introductory fluid mechanics, 2026). He chose and reframed the topic, directed the AI tools, set the requirements, and is responsible for reviewing and approving every change before publication.</p>
-    <p>AI assistance: the engineering blueprint (Model A) and the first version of this website's code, tests and text were produced by Claude Opus 5.5 (Anthropic) on 22 and 29 October 2026 under his direction; see the <a href="#/ai-lab">AI lab</a>. Model B, the comparison, the decisions, the reflection and the presentation will be added by him.</p>
-    <div class="placeholder"><strong>To complete:</strong> replace or extend this statement in your own words once your hand derivations, decisions and presentation are done (edit <code>src/sections/references.js</code>).</div>
+    <p>AI assistance: the engineering blueprint and the first version of this website's code, tests and text were produced by Claude Opus 5.5 (Anthropic) on 22 and 29 October 2026 under his direction.</p>
+    <div class="placeholder"><strong>To complete:</strong> replace or extend this statement in your own words once your hand derivations and video are done (edit <code>src/sections/references.js</code>).</div>
   </div>`;
 }

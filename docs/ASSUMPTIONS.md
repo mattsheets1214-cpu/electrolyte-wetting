@@ -40,9 +40,9 @@
 
 - [ ] Review and merge the v1 pull request; enable GitHub Pages (README → Deploying).
 - [ ] Re-derive Washburn and the Mode B equilibrium by hand; photograph/scan for the site (blueprint section 13 condition).
-- [ ] Obtain the Model B critique; fill the decision table (`src/content/aiLab.js`).
+- [ ] Obtain the Model B critique and decision table (no longer shown on the site; keep it wherever your course submission needs it).
 - [ ] Freeze the spec; run the two comparable implementations with identical prompts; run the shared tests on both; record results and bugs.
-- [ ] Record the practice presentation, get the AI critique (include site link + requirements), record the final video, paste the verbatim auto-transcript.
+- [ ] Record the practice presentation, get the AI critique (include site link + requirements), record the final video, add the video id to `src/content/video.js`; paste the verbatim auto-transcript.
 - [ ] Write lessons learned, future questions and your own contribution statement.
 - [ ] Add the instructor's reference-site URL to `DESIGN_INSPIRATION` in `src/content/references.js`.
 - [ ] Optionally confirm the full author list for Wang et al. 2021 (abbreviated as "et al.").

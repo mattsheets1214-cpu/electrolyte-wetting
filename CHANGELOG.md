@@ -2,9 +2,19 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [1.1.0] — 2026-10-29
+
+### Removed (requested by the owner)
+- "AI lab" and "Presentation" pages, their navigation links and content files (`src/content/aiLab.js`, `src/content/presentation.js`). Old links to them now open the Overview.
+
+### Changed
+- The Overview keeps a "Video explanation" slot, now configured in `src/content/video.js`.
+- AI-model credits moved to `AI_MODELS` in `src/content/references.js` (still listed on the References page).
+- The Model A blueprint and site-build prompt moved from `public/evidence/` (published) to `docs/evidence/` (kept in the repository, not published).
+
 ## [1.0.0] — 2026-10-29 — first complete version (branch `feature/v1-site`, awaiting review)
 
-Built with Claude Opus 5.5 from the Model A blueprint (2026-10-22) and the master build prompt (saved in `public/evidence/`).
+Built with Claude Opus 5.5 from the Model A blueprint (2026-10-22) and the master build prompt (now in `docs/evidence/`).
 
 ### Added
 - Physics core (`src/physics/`): Young–Laplace capillary pressure (cylinder and slit), Mode A open capillary (exact), Mode B dead-end pore with isothermal trapped gas (adaptive Dormand–Prince 5(4) in `y = (L/L_p)²`), input validation, dimensionless validity checks (inertia, Re, Ca, Bo, θ, pore size, slenderness), challenge inverse solutions, parameter sweeps.

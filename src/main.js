@@ -23,8 +23,6 @@ const ROUTES = {
   lab: { title: 'Interactive lab', load: () => import('./sections/lab.js') },
   theory: { title: 'Theory', load: () => import('./sections/theory.js') },
   verification: { title: 'Code & verification', load: () => import('./sections/verification.js') },
-  'ai-lab': { title: 'AI lab', load: () => import('./sections/ailab.js') },
-  presentation: { title: 'Presentation', load: () => import('./sections/presentation.js') },
   references: { title: 'References & credits', load: () => import('./sections/references.js') },
 };
 

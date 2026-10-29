@@ -122,6 +122,12 @@ export const DESIGN_INSPIRATION = [
   { name: 'Course instructor\'s packed-bed reactor site', url: null, note: 'Structural reference (sidebar inputs, numbered theory, live code walkthrough, exact-solution tests), as described in the project blueprint. Add the URL here.' },
 ];
 
+/** AI models used to plan and build the project (credited on the References page). */
+export const AI_MODELS = [
+  { role: 'Engineering blueprint', name: 'Claude Opus 5.5', provider: 'Anthropic', version: 'claude-opus-5-5', date: '2026-10-22' },
+  { role: 'Website code, tests and text (v1)', name: 'Claude Opus 5.5', provider: 'Anthropic', version: 'claude-opus-5-5', date: '2026-10-29' },
+];
+
 /** Blueprint sources that were NOT verified and are therefore not used on the site. */
 export const UNVERIFIED = [
   { cite: 'USPTO patent 9,083,034 (treated battery separator; contact angles 26.3° and 8.3° quoted in the blueprint)', why: 'Not opened during the build. Not used.' },

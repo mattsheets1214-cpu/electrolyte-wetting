@@ -7,12 +7,10 @@ The site combines a teaching text with a virtual lab:
 
 | Section | What it does |
 |---|---|
-| Overview | The "milliseconds vs. tens of minutes" paradox, as a draggable slide rule of distance vs. filling time |
+| Overview | The "milliseconds vs. tens of minutes" paradox, as a draggable slide rule of distance vs. filling time, plus a slot for the video explanation |
 | Interactive lab | Mode A (open capillary, exact solution) and Mode B (dead-end pore with trapped gas, numerical ODE), three plots, an animated pore, validity checks, model-vs-reality panel, guided challenge |
 | Theory | Nine lessons from surface tension to trapped gas, plus a quiz |
 | Code & verification | The real solver code, 28 verification checks run live in the browser, convergence data, and an independent Python model run through Pyodide (WebAssembly) |
-| AI lab | Templates for the course's two-model AI workflow (evidence is added by the author; nothing is pre-filled) |
-| Presentation | Slots for the YouTube video, verbatim transcript, practice run and reflection |
 | References | Verified bibliography, input-value sources, software, AI models, contribution statement |
 
 All calculations run in the visitor's browser. There is no server, account or API key.
@@ -86,7 +84,7 @@ index.html                 page shell (header, nav, footer)
 src/main.js                router + styles + fonts
 src/physics/               equations, solvers, validation, validity checks, verification checks (SI units only)
 src/data/                  lab input definitions (ranges, defaults, sources) and preset scenarios
-src/content/               lessons, quiz, references, AI-lab evidence, presentation, model-vs-reality text
+src/content/               lessons, quiz, references, video id, model-vs-reality text
 src/sections/              one file per page
 src/charts/plot.js         dependency-free SVG plotting
 src/diagrams/              hand-built scientific diagrams
@@ -94,7 +92,7 @@ src/animations/            physics-linked pore animation (Anime.js) and interfac
 python/                    independent Python reference model, tests, reference-case generator
 tests/                     Vitest suites + shared fixtures
 docs/                      assumptions, verification, source audit, deployment notes
-public/evidence/           files linked from the AI lab (Model A blueprint, build prompt)
+docs/evidence/             Model A blueprint and the site-build prompt (kept in the repo, not published)
 ```
 
 ## Editing with an AI coding assistant
@@ -109,12 +107,9 @@ Whichever tool you use: ask for changes on a branch, require `npm test` to pass,
 
 Examples of requests that fit the structure: "Rewrite lesson 3 for a beginner" (`src/content/lessons.js`), "Add a validated electrolyte parameter set as a preset" (`src/data/presets.js` + a reference), "Improve the trapped-gas animation" (`src/animations/pore.js`), "Fix this numerical error" (`src/physics/` + a new test).
 
-## Adding your evidence
+## Adding your video
 
-- Model B critique, decisions, prompts, test results, bugs, your reasoning: `src/content/aiLab.js`.
-- YouTube id, verbatim transcript, practice transcript and critique, lessons learned, future questions: `src/content/presentation.js`.
-- Files (PDFs, transcripts): put them in `public/evidence/` and link them by name.
-- `tests/content.test.js` deliberately fails when these change, so you update it on purpose.
+When your video explanation is on YouTube, put its id (the part after `watch?v=`) and a title in `src/content/video.js`, and update the test in `tests/content.test.js` that checks the id is still empty. The Overview page then embeds it.
 
 ## Licence and credits
 
