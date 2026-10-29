@@ -4,8 +4,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import { REFERENCES, byId } from '../src/content/references.js';
 import { QUIZ } from '../src/content/quiz.js';
-import { AI_LAB } from '../src/content/aiLab.js';
-import { PRESENTATION } from '../src/content/presentation.js';
+import { VIDEO } from '../src/content/video.js';
 
 // lessons.js imports diagram code only (no DOM needed at import time)
 const { LESSONS } = await import('../src/content/lessons.js');
@@ -55,19 +54,16 @@ describe('quiz', () => {
   });
 });
 
-describe('evidence placeholders', () => {
-  it('uncollected AI-lab evidence is null/empty (shown as "not yet collected"), never invented', () => {
-    // When you add real evidence, update this test deliberately.
-    expect(AI_LAB.modelBCritique).toBeNull();
-    expect(AI_LAB.models.find((m) => m.role.startsWith('Model B')).name).toBeNull();
-    expect(AI_LAB.decisions).toEqual([]);
-    expect(AI_LAB.testResults).toEqual([]);
+describe('video slot', () => {
+  it('has no video id until the real video exists (the Overview shows an empty slot)', () => {
+    // When you add your YouTube video, update this test deliberately.
+    expect(VIDEO.youtubeId).toBeNull();
   });
-  it('no video id or transcript until the real ones exist', () => {
-    expect(PRESENTATION.youtubeId).toBeNull();
-    expect(PRESENTATION.autoTranscript).toBeNull();
-  });
-  it('evidence files referenced by the AI lab exist', () => {
-    for (const m of AI_LAB.models) if (m.evidence) expect(fs.existsSync(`public/${m.evidence}`), m.evidence).toBe(true);
+});
+
+describe('removed pages stay removed', () => {
+  it('navigation has no AI lab or Presentation link', () => {
+    const html = fs.readFileSync('index.html', 'utf8');
+    expect(html).not.toMatch(/#\/ai-lab|#\/presentation/);
   });
 });

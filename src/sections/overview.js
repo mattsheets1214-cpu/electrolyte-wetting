@@ -9,7 +9,7 @@ import { solveModeA, solveModeB } from '../physics/index.js';
 import { BASE } from '../physics/checks.js';
 import { formatTime, formatLength, sig, sci } from '../physics/units.js';
 import { vacuumComparison, prismaticCell } from '../diagrams/index.js';
-import { PRESENTATION } from '../content/presentation.js';
+import { VIDEO } from '../content/video.js';
 import { cite } from '../ui/cite.js';
 import { prefersReducedMotion } from '../ui/dom.js';
 
@@ -122,10 +122,10 @@ export function render(root) {
   </section>
 
   <section aria-labelledby="video-h">
-    <h2 id="video-h">Video presentation</h2>
-    ${PRESENTATION.youtubeId
-      ? `<div class="video-slot"><iframe src="https://www.youtube-nocookie.com/embed/${PRESENTATION.youtubeId}" title="${PRESENTATION.title || 'Project presentation'}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
-      : `<div class="video-slot"><div><strong style="color:var(--warn)">Video not yet recorded.</strong><br>The final YouTube presentation will appear here. Add its id in <code>src/content/presentation.js</code>.</div></div>`}
+    <h2 id="video-h">Video explanation</h2>
+    ${VIDEO.youtubeId
+      ? `<div class="video-slot"><iframe src="https://www.youtube-nocookie.com/embed/${VIDEO.youtubeId}" title="${VIDEO.title || 'Project presentation'}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+      : `<div class="video-slot"><div><strong style="color:var(--warn)">Video coming soon.</strong><br>A video explanation of this project will appear here.</div></div>`}
   </section>`;
 
   // --------------------------------------------------------- interactivity
