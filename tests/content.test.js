@@ -138,6 +138,28 @@ describe('AI project documentation stays honest', () => {
   });
 });
 
+describe('final technical review guards', () => {
+  it('the capillary number is evaluated at a stated finite length (L = 10r), not at L = 0', async () => {
+    const { VALUES } = await import('../src/content/paper.js');
+    expect(VALUES.LEarly).toBeCloseTo(5e-6, 12);
+    expect(VALUES.CaEarly).toBeCloseTo(0.02165, 4);
+    expect(VALUES.CaEarly / VALUES.CaCoat).toBeCloseTo(70e-6 / VALUES.LEarly, 6); // Ca ∝ 1/L
+    expect(prose).toMatch(/evaluated here at \$L = 10r\$/);
+  });
+  it('the dead-end fill fraction is qualified as an idealized sealed-pore result wherever it is quoted in the prose', () => {
+    expect(ABSTRACT()).toMatch(/idealized, sealed dead-end pore/);
+    expect(prose).toMatch(/not predictions of the electrolyte saturation of a whole electrode/);
+    expect(SECTIONS.find((s) => s.id === 'conclusions').body()).toMatch(/not whole-electrode saturation/);
+  });
+  it('the 30° contact angle is labelled an assumption, not a measured electrode property', () => {
+    expect(ABSTRACT()).toMatch(/illustrative \(not measured\) contact angle of 30°/);
+    expect(prose).toMatch(/not a measured contact angle on a graphite anode or cathode coating/);
+  });
+  it('the τ² scaling is attributed to the single-pore model', () => {
+    expect(prose).toMatch(/not a general relationship between tortuosity and filling time for porous electrodes/);
+  });
+});
+
 describe('navigation', () => {
   it('has exactly the four pages, in order', () => {
     const html = fs.readFileSync('index.html', 'utf8');

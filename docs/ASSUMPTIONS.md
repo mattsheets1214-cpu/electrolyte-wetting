@@ -40,7 +40,7 @@
 2. **Effective pore radius.** Real electrodes have a distribution; capillary pressure favours small pores, flow favours large ones. A single r is a modelling choice.
 3. **Quantitative validation.** Davoodabadi et al. (2019) report imbibition curves; if accessible through UC's library they could be digitized to test the √t law and viscosity scaling. Not done.
 4. **Weydanz et al. (2018) cell geometry.** Wetting distance, pore size and electrolyte for that cell are not known here, so the 50–100 min comparison is plausibility only.
-5. **Dynamic contact angle.** Ca ≈ 0.02 in the first moments at baseline; a Cox–Voinov-type correction would slow early filling. Optional extension.
+5. **Dynamic contact angle.** Ca ≈ 0.02 at baseline when evaluated at L = 10r = 5 µm (Lucas–Washburn has no finite value at L = 0; Ca ∝ 1/L, ≈ 1.5 × 10⁻³ at 70 µm); a Cox–Voinov-type correction would slow early filling. Optional extension.
 
 ## Remaining tasks for the author
 

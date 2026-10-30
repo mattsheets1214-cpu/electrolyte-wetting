@@ -55,7 +55,7 @@ export const PARAMETERS = {
     label: 'Tortuosity', symbol: 'τ', unit: '–', toSI: 1,
     default: 1, min: 1, max: 5, step: 0.05, scale: 'linear', modes: ['A'],
     basis: 'assumption',
-    note: 'Path-length ratio (actual path ÷ straight line); time scales with τ². Some texts call the square of this ratio the tortuosity, so check the definition before comparing values. An idealized correction, not a material constant. τ = 1 means a straight pore.',
+    note: 'Path-length ratio (actual path ÷ straight line); in this single-pore model time scales with τ² (not a general law for porous electrodes). Some texts call the square of this ratio the tortuosity, so check the definition before comparing values. An idealized correction, not a material constant. τ = 1 means a straight pore.',
   },
   pg0: {
     label: 'Initial non-condensable gas pressure', symbol: 'p_g0', unit: 'kPa abs', toSI: 1e3,

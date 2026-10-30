@@ -30,7 +30,7 @@ export const AI_DOCS = {
 
   prompts: [
     { title: 'Site build prompt (chat message and attached master build prompt)', date: '2026-10-29', file: 'docs/evidence/site-build-prompt-2026-10-29.md' },
-    { title: 'Scientific audit, Phase 3 corrections, professor-feedback planning and journal-paper restructuring', date: '2026-10-29 to 2026-10-30', file: 'docs/evidence/prompts-2026-10-29-30.md' },
+    { title: 'Scientific audit, Phase 3 corrections, professor-feedback planning, journal-paper restructuring and final technical review', date: '2026-10-29 to 2026-10-30', file: 'docs/evidence/prompts-2026-10-29-30.md' },
   ],
 
   /** AI critiques actually performed. `independent` is true only if a DIFFERENT model reviewed the work. */
