@@ -112,7 +112,7 @@ describe('journal writing style (main paper prose)', () => {
   });
 });
 
-describe('AI project documentation stays honest', () => {
+describe('AI project documentation record stays honest (presented in the slides, not on the site)', () => {
   // When you add real material, update the matching expectation deliberately.
   it('video and verbatim transcript stay empty until they exist', () => {
     expect(VIDEO.youtubeId).toBeNull();
@@ -161,9 +161,9 @@ describe('final technical review guards', () => {
 });
 
 describe('navigation', () => {
-  it('has exactly the four pages, in order', () => {
+  it('has exactly the three pages, in order', () => {
     const html = fs.readFileSync('index.html', 'utf8');
     const nav = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
-    expect([...nav.matchAll(/href="#\/([\w-]+)"/g)].map((m) => m[1])).toEqual(['paper', 'lab', 'supplement', 'ai-documentation']);
+    expect([...nav.matchAll(/href="#\/([\w-]+)"/g)].map((m) => m[1])).toEqual(['paper', 'lab', 'supplement']);
   });
 });

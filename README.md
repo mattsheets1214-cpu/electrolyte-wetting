@@ -8,9 +8,10 @@ An undergraduate engineering paper, with an interactive demonstration, on capill
 | Paper (`#/paper`, landing page) | Journal-style paper: abstract, nomenclature, 1 Introduction, 2 Governing theory (2.1–2.6), 3 Methodology, 4 Results (four figures computed live), 5 Discussion, 6 Conclusions, numbered references |
 | Interactive demonstration (`#/lab`) | Mode A (single-capillary Lucas–Washburn filling) and Mode B (simplified vacuum-assisted filling), with assumptions and validity limits labelled |
 | Supplementary material (`#/supplement`) | S1 additional derivations, S2 Darcy/Kozeny–Carman, S3 additional limitations, S4 numerical methods and verification (solver code, 29 live checks, convergence, Python via Pyodide) |
-| AI project documentation (`#/ai-documentation`) | Models, planning, prompts, critique, implementations, decisions, contribution and reflection, YouTube video and transcript slots |
 
-Old links (`#/overview`, `#/theory`, `#/references`, `#/verification`) redirect to the matching place.
+The AI project documentation is presented in the project slide presentation, not on the site; its record is kept in `src/content/aiDocs.js` and `docs/evidence/`.
+
+Old links (`#/overview`, `#/theory`, `#/references`, `#/verification`, `#/ai-documentation`) redirect to the matching place.
 
 All calculations run in the visitor's browser. There is no server, account or API key.
 
@@ -108,7 +109,7 @@ Examples of requests that fit the structure: "Tighten the wording of Section 2.4
 
 ## Adding your video
 
-When your video explanation is on YouTube, put its id (the part after `watch?v=`) and a title in `src/content/video.js`, and paste YouTube's auto-generated transcript, unedited, into `autoTranscript`. Update the matching test in `tests/content.test.js` deliberately. The AI project documentation page then embeds the video and the paper links to it.
+When your video explanation is on YouTube, put its id (the part after `watch?v=`) and a title in `src/content/video.js`, and paste YouTube's auto-generated transcript, unedited, into `autoTranscript`. Update the matching test in `tests/content.test.js` deliberately. The paper header then links to the video.
 
 ## Licence and credits
 

@@ -356,7 +356,7 @@ export const SECTIONS = [
 
 /** Back matter shown after the conclusions. */
 export const BACK_MATTER = {
-  aiDeclaration: R`During the preparation of this work the author used Claude Opus 5.5 (Anthropic) to plan the project, write the website code, automated tests and draft text, and audit the scientific content. The author selected the topic, set the requirements, directed the tools and reviewed every change before publication, and takes responsibility for the content. Details, including the prompts used, are given on the AI project documentation page.`,
+  aiDeclaration: R`During the preparation of this work the author used Claude Opus 5.5 (Anthropic) to plan the project, write the website code, automated tests and draft text, and audit the scientific content. The author selected the topic, set the requirements, directed the tools and reviewed every change before publication, and takes responsibility for the content. Details of the AI workflow, including the prompts used, are given in the accompanying project presentation; the prompts are also archived in the project repository.`,
   dataAvailability: R`All equations, parameter values, calculations and tests are contained in the public repository <a href="https://github.com/mattsheets1214-cpu/electrolyte-wetting">github.com/mattsheets1214-cpu/electrolyte-wetting</a>. Every number and figure in this paper is computed in the reader's browser at page load by the code in <code>src/physics/</code>.`,
 };
 

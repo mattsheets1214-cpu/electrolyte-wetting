@@ -2,6 +2,18 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [2.1.0] — 2026-10-30 — AI documentation moved off the website (branch `remove-ai-docs-page`, awaiting review)
+
+At the author's request, the AI project documentation is no longer a page on the site; it will be presented in the author's project slide presentation.
+
+### Removed
+- AI project documentation page (`src/sections/aiDocumentation.js`), its navigation link and the link in the paper header.
+
+### Changed
+- `#/ai-documentation` now redirects to the paper's AI declaration, so old links still work.
+- Paper's "Declaration of generative AI use" now points to the project presentation and the repository's prompt archive instead of the removed page.
+- `src/content/aiDocs.js` and `docs/evidence/` are kept as the repository record the slides are built from; the honesty tests on them are unchanged. Navigation test now expects three pages. README and AI_CONTEXT updated.
+
 ## [2.0.1] — 2026-10-30 — final technical and editorial review (branch `final-technical-review`, awaiting review)
 
 Targeted wording changes to the paper only. No equation, solver, parameter value or verified calculation changed; the only displayed number that changed is the rounding of p_c in Conclusion 2 (102 → 101.8 kPa, now matching the rest of the paper).

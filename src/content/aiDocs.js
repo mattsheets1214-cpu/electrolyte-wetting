@@ -1,6 +1,10 @@
 /**
  * aiDocs.js — AI project documentation (the course's AI-workflow deliverables).
  *
+ * Since 30 Oct 2026 this is NOT shown on the website: the author presents it in
+ * the project slide presentation. This file stays as the repository record that
+ * the slides are built from, and tests/content.test.js still guards it.
+ *
  * HONESTY RULE: only real material goes here. Anything still `null` (or an
  * empty array) is shown on the site as "Not yet supplied", so nothing can be
  * published as if it existed. Never fill a slot with invented text.
