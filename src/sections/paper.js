@@ -37,7 +37,7 @@ export function render(root) {
       <p class="paper-author">${esc(META.author)}</p>
       <p class="paper-affil">${esc(META.affiliation)}</p>
       <p class="paper-note">${esc(META.note)}</p>
-      <p class="paper-links small">Supplements: <a href="#/lab">Interactive demonstration</a> · <a href="#/supplement">Supplementary material</a> · <a href="#/ai-documentation">AI project documentation</a> · Video presentation: ${VIDEO.youtubeId ? `<a href="https://www.youtube.com/watch?v=${VIDEO.youtubeId}">${esc(VIDEO.title || 'YouTube')}</a>` : '<span class="muted">to be added</span>'}</p>
+      <p class="paper-links small">Supplements: <a href="#/lab">Interactive demonstration</a> · <a href="#/supplement">Supplementary material</a> · Video presentation: ${VIDEO.youtubeId ? `<a href="https://www.youtube.com/watch?v=${VIDEO.youtubeId}">${esc(VIDEO.title || 'YouTube')}</a>` : '<span class="muted">to be added</span>'}</p>
     </header>
 
     <section class="abstract" aria-labelledby="abstract-h">
@@ -57,7 +57,7 @@ export function render(root) {
 
     <section class="paper-section back-matter" id="declarations" aria-labelledby="declarations-h">
       <h2 id="declarations-h">Declaration of generative AI use</h2>
-      <div class="prose paper-prose"><p>${BACK_MATTER.aiDeclaration.replace('AI project documentation page', '<a href="#/ai-documentation">AI project documentation</a> page')}</p></div>
+      <div class="prose paper-prose"><p>${BACK_MATTER.aiDeclaration}</p></div>
       <h2 id="availability">Data and code availability</h2>
       <div class="prose paper-prose"><p>${BACK_MATTER.dataAvailability}</p>
         <p>Software: ${SOFTWARE.map((s) => `<a href="${s.url}">${esc(s.name)}</a> (${esc(s.role)})`).join('; ')}.</p></div>

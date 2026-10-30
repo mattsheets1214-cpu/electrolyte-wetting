@@ -5,7 +5,7 @@ Verification = the code solves its stated equations correctly. It says nothing a
 ## How to reproduce
 
 ```bash
-npm ci && npm test                                  # 110 JS tests incl. 29 verification checks and Pyodide cross-check
+npm ci && npm test                                  # 114 JS tests incl. 29 verification checks and Pyodide cross-check
 python -m pip install -r python/requirements-dev.txt
 python -m pytest python/tests -q                    # 28 Python tests incl. SciPy Radau cross-check
 python python/wetting/model.py                      # baseline numbers
@@ -63,3 +63,10 @@ Baseline hand checks (all reproduced): p_c = 101.84 kPa; D_W = 1.4467 × 10⁻�
 - `npm run build` succeeded. Every page and the four old routes were loaded in headless Chromium: 0 KaTeX errors, 0 unresolved markup tokens, 0 console errors; 29 of 29 checks passed live in S4.
 - Snapshot comparison with the pre-restructuring state: all 91 still-displayed computed values (checks, preset outputs, sweep slopes, vacuum points, validity values) identical; removed: lesson examples (their numbers now appear in the paper, computed by the same functions) and the challenge.
 
+
+## Results recorded on 2026-10-30 (final technical review, branch `final-technical-review`)
+
+- JavaScript: 4 files, **114/114 tests passed** (Vitest 5.0.5, Node 22.23): previous 110 plus 4 content guards.
+- Python: **28/28 passed**. Python model unchanged.
+- `npm run build` succeeded. Paper, supplement (including S4) and demonstration loaded in headless Chromium: 0 KaTeX errors, 0 unresolved markup tokens, 0 console errors; 29 of 29 checks passed live in S4.
+- Hand check of the Ca statement: D_W = 1.4467 × 10⁻⁶ m²/s; at L = 10r = 5 µm, v = D_W/(2L) = 0.1447 m/s, Ca = μv/σ = 0.02165; at 70 µm, Ca = 1.55 × 10⁻³.

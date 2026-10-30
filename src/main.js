@@ -22,7 +22,6 @@ const ROUTES = {
   paper: { title: 'Paper', load: () => import('./sections/paper.js') },
   lab: { title: 'Interactive demonstration', load: () => import('./sections/lab.js') },
   supplement: { title: 'Supplementary material', load: () => import('./sections/supplement.js') },
-  'ai-documentation': { title: 'AI project documentation', load: () => import('./sections/aiDocumentation.js') },
 };
 
 /** Old routes (v1 site) kept working: route → [new route, default anchor]. */
@@ -31,6 +30,7 @@ const ALIASES = {
   theory: ['paper', 'theory'],
   references: ['paper', 'references'],
   verification: ['supplement', 's4'],
+  'ai-documentation': ['paper', 'declarations'], // page removed 30 Oct 2026; AI documentation moved to the presentation
 };
 
 const app = document.getElementById('app');

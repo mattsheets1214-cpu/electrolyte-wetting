@@ -1,6 +1,10 @@
 /**
  * aiDocs.js — AI project documentation (the course's AI-workflow deliverables).
  *
+ * Since 30 Oct 2026 this is NOT shown on the website: the author presents it in
+ * the project slide presentation. This file stays as the repository record that
+ * the slides are built from, and tests/content.test.js still guards it.
+ *
  * HONESTY RULE: only real material goes here. Anything still `null` (or an
  * empty array) is shown on the site as "Not yet supplied", so nothing can be
  * published as if it existed. Never fill a slot with invented text.
@@ -30,7 +34,7 @@ export const AI_DOCS = {
 
   prompts: [
     { title: 'Site build prompt (chat message and attached master build prompt)', date: '2026-10-29', file: 'docs/evidence/site-build-prompt-2026-10-29.md' },
-    { title: 'Scientific audit, Phase 3 corrections, professor-feedback planning and journal-paper restructuring', date: '2026-10-29 to 2026-10-30', file: 'docs/evidence/prompts-2026-10-29-30.md' },
+    { title: 'Scientific audit, Phase 3 corrections, professor-feedback planning, journal-paper restructuring and final technical review', date: '2026-10-29 to 2026-10-30', file: 'docs/evidence/prompts-2026-10-29-30.md' },
   ],
 
   /** AI critiques actually performed. `independent` is true only if a DIFFERENT model reviewed the work. */
@@ -68,6 +72,7 @@ export const AI_DOCS = {
     { date: '2026-10-30', suggestion: 'Use impersonal voice ("it is shown that…").', source: 'Author', decision: 'accepted', reasoning: 'Journal style.' },
     { date: '2026-10-30', suggestion: 'Use numbered citations [1].', source: 'Claude', decision: 'accepted', reasoning: 'Numbered citations are common in engineering journals; the author knows of no University of Cincinnati requirement. Can be changed if the instructor prefers author–year.' },
     { date: '2026-10-30', suggestion: 'Limit the main paper to equations derivable with introductory fluid mechanics; move advanced material to a supplement.', source: 'Author (interpretation of the professor\'s feedback)', decision: 'accepted', reasoning: 'The author must be able to explain and defend every element of the main paper in Q&A.' },
+    { date: '2026-10-30', suggestion: 'Move the AI project documentation off the website and into the project slide presentation.', source: 'Author', decision: 'accepted', reasoning: 'Owner request. The page was removed from the site (pull request #9); this file remains the record the slides are built from.' },
     { date: '2026-10-30', suggestion: 'Remove the slide-rule animation from the landing page.', source: 'Claude', decision: 'pending', reasoning: 'Proposed in the restructuring pull request (decorative relative to the paper\'s figures); awaiting the author\'s review.' },
   ],
 

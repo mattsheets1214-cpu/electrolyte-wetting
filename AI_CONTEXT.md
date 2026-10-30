@@ -6,7 +6,7 @@ This file tells an AI coding assistant (Claude Code, Copilot, Cursor, …) and a
 
 A static, client-side teaching website for an introductory fluid mechanics course (University of Cincinnati, 2026, author Matthew Sheets): why lithium-ion cells take tens of minutes to wet with electrolyte although one pore fills in milliseconds. Priority order: **correct physics → clear teaching → working interactivity → honest verification/validation → design → easy editing.**
 
-Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page), **Interactive demonstration** (`#/lab`), **Supplementary material** (`#/supplement`, includes S4 verification), **AI project documentation** (`#/ai-documentation`). Old routes `#/overview`, `#/theory`, `#/references`, `#/verification` are aliases in `src/main.js`. Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
+Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page), **Interactive demonstration** (`#/lab`), **Supplementary material** (`#/supplement`, includes S4 verification). The AI project documentation page was removed on 30 Oct 2026; that material is presented in the author's slide presentation, and `src/content/aiDocs.js` remains the repository record. Old routes `#/overview`, `#/theory`, `#/references`, `#/verification`, `#/ai-documentation` are aliases in `src/main.js`. Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page)
   - `porous.js` closed-form Darcy/Kozeny–Carman relations (Supplementary S2 and checks only; not a lab solver). `sweeps.js` data for the lab plots and paper Figs. 8–9.
   - `checks.js` **the verification suite**, run by Vitest *and* live on the Code & verification page.
 - `src/data/parameters.js` every lab input: unit, range, default, `basis` (`measured` / `assumption` / `geometry`) and source note. `presets.js` scenarios.
-- `src/content/` all editable text: `paper.js` (the paper: sections, numbered equations/figures/tables, nomenclature; markup documented at the top of the file), `supplement.js` (S1–S3), `citations.js` (numbered citation order), `references.js`, `aiDocs.js` (AI documentation; `null` = not yet supplied), `video.js` (YouTube id and verbatim transcript). `src/ui/markup.js` renders the paper markup.
+- `src/content/` all editable text: `paper.js` (the paper: sections, numbered equations/figures/tables, nomenclature; markup documented at the top of the file), `supplement.js` (S1–S3), `citations.js` (numbered citation order), `references.js`, `aiDocs.js` (AI documentation record, not rendered on the site; `null` = not yet supplied), `video.js` (YouTube id and verbatim transcript). `src/ui/markup.js` renders the paper markup.
 - `src/charts/plot.js` small SVG plotting module (linear/log axes, legend with line styles, tooltips, keyboard).
 - `src/diagrams/index.js` SVG diagrams drawn from geometry. `src/animations/pore.js` physics-linked animation (Anime.js Timer for playback); `motion.js` page/figure motion (Motion). Both degrade gracefully if the library fails and respect `prefers-reduced-motion`.
 - `python/wetting/model.py` independent reference implementation (standard library only; RK4 with step doubling). Runs in the browser through Pyodide (loaded on demand from jsDelivr, version pinned in `src/sections/verification.js`) and in pytest.
@@ -41,7 +41,7 @@ Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page)
 
 1. Never invent experimental data, references, DOIs, URLs, quotes, transcripts, video ids, AI critiques, test results or personal reflections.
 2. Every numerical input must have a source in `src/content/references.js` or be labelled `assumption`.
-3. The video id and transcript in `src/content/video.js`, and the empty slots in `src/content/aiDocs.js` (independent critique, second implementation, comparison, reflection), stay `null` until the real material exists; the site then shows labelled empty slots. `tests/content.test.js` guards this — update those tests deliberately when real material is added. A critique by the same model that built the site must never be labelled independent.
+3. The video id and transcript in `src/content/video.js`, and the empty slots in `src/content/aiDocs.js` (independent critique, second implementation, comparison, reflection), stay `null` until the real material exists. `tests/content.test.js` guards this — update those tests deliberately when real material is added. A critique by the same model that built the site must never be labelled independent.
 4. Code shown on the site is cut from the real source using `// #region name` … `// #endregion` markers (see `region()` in `src/sections/verification.js`). If you rename or remove a region, update the page.
 5. Plots, outputs and animations must come from the solver. No hard-coded results.
 6. Distinguish verification (code solves its equations) from validation (equations describe reality).

@@ -2,6 +2,34 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [2.1.0] — 2026-10-30 — AI documentation moved off the website (branch `remove-ai-docs-page`, awaiting review)
+
+At the author's request, the AI project documentation is no longer a page on the site; it will be presented in the author's project slide presentation.
+
+### Removed
+- AI project documentation page (`src/sections/aiDocumentation.js`), its navigation link and the link in the paper header.
+
+### Changed
+- `#/ai-documentation` now redirects to the paper's AI declaration, so old links still work.
+- Paper's "Declaration of generative AI use" now points to the project presentation and the repository's prompt archive instead of the removed page.
+- `src/content/aiDocs.js` and `docs/evidence/` are kept as the repository record the slides are built from; the honesty tests on them are unchanged. Navigation test now expects three pages. README and AI_CONTEXT updated.
+
+## [2.0.1] — 2026-10-30 — final technical and editorial review (branch `final-technical-review`, awaiting review)
+
+Targeted wording changes to the paper only. No equation, solver, parameter value or verified calculation changed; the only displayed number that changed is the rounding of p_c in Conclusion 2 (102 → 101.8 kPa, now matching the rest of the paper).
+
+### Changed
+- Section 5.2: the capillary number (Ca ≈ 0.022) is now reported with its evaluation point, L = 10r = 5 µm (v ≈ 0.14 m/s). The text states that Lucas–Washburn has no finite initial velocity, that L = 10r is a convention shared with the lab's validity checks, that Ca ∝ 1/L, and gives Ca at 70 µm (1.5 × 10⁻³). Section 2.4 notes that velocity-dependent numbers are evaluated at a stated finite length.
+- Section 2.5 and Conclusion 4: the τ² scaling is explained (longer path × longer resisting column) and stated to be specific to the single-pore geometric model, not a general law for porous electrodes. Same clarification in the lab's τ parameter note.
+- Abstract, Section 4.4, Section 5.4 and Conclusion 5: the 50.13 % equilibrium fill is described as an idealized, sealed dead-end pore result, not whole-electrode saturation.
+- Abstract, Sections 2.1 and 3.1: the 30° baseline contact angle is stated to be illustrative, not a measured graphite or cathode value ("measured input" → "input parameter" in 2.1).
+- Sections 2.4, 4.1, 5.1, abstract and Conclusion 1: the square-distance relationship is made explicit (t₂/t₁ = (L₂/L₁)², ≈ 714² ≈ 5.1 × 10⁵ between 70 µm and 5 cm) and tied to the model assumptions.
+- `docs/ASSUMPTIONS.md`: Ca note gives its evaluation point.
+
+### Added
+- 4 content tests guarding the above (Ca evaluation point and 1/L scaling; sealed-pore qualification; contact-angle assumption; τ² attribution).
+- The author's prompt for this review, verbatim, in `docs/evidence/prompts-2026-10-29-30.md`.
+
 ## [2.0.0] — 2026-10-30 — journal-paper restructuring (branch `journal-paper`, awaiting review)
 
 Responds to the instructor's feedback (scientific/engineering journal style; every key element must be explainable by the author). Built on top of 1.2.0 (PR #6). No solver equation changed; every number still displayed is identical to before (checked by snapshot).
