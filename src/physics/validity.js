@@ -7,10 +7,30 @@
  */
 import { G, RHO_ELECTROLYTE } from './constants.js';
 import { sci, sig, formatTime } from './units.js';
+import { capillaryPressure } from './capillary.js';
+
+/**
+ * Gravity criterion for a VERTICAL front (m1 of the Phase 1–2 audit).
+ * Compares the hydrostatic pressure of the wetted column, ρ g H, with the net
+ * driving pressure Δp. H is the VERTICAL height climbed, i.e. the straight-line
+ * distance X (ctx.height), not the tortuous path length; it defaults to Lref. Δp is recovered from the Washburn coefficient along the
+ * path, D = r²Δp/(4μ), so it includes any applied pressure. Also returns the
+ * Jurin height 2σcosθ/(ρ g r) when the capillary pressure is positive.
+ * @returns {{ratio:number, head:number, drive:number, hJurin:number}|null}
+ */
+export function gravityCheck(p, ctx, rho = RHO_ELECTROLYTE) {
+  const { D, Lref } = ctx;
+  const H = ctx.height ?? Lref;
+  if (!(Number.isFinite(D) && D > 0 && H > 0)) return null;
+  const drive = (4 * p.mu * D) / (p.r * p.r);
+  const head = rho * G * H;
+  const pc = capillaryPressure(p.sigma, p.thetaDeg, p.r);
+  return { ratio: head / drive, head, drive, height: H, hJurin: pc > 0 ? pc / (rho * G) : NaN };
+}
 
 /**
  * @param {object} p   SI inputs (r, sigma, thetaDeg, mu; plus Lp for mode B)
- * @param {object} ctx { mode:'A'|'B', D?: m²/s along path, Lref?: m, tRef?: s }
+ * @param {object} ctx { mode:'A'|'B', D?: m²/s along path, Lref?: m, tRef?: s, height?: m (vertical rise for the gravity check; defaults to Lref) }
  *   For Mode A pass D and Lref = target path length; for Mode B pass D at the
  *   initial drive and Lref = L_p.
  * @returns {{id:string, level:string, title:string, value:string, detail:string}[]}
@@ -52,18 +72,33 @@ export function validityChecks(p, ctx) {
       id: 'capillary-number', level: CaRef < 1e-4 ? (CaEarly < 1e-3 ? 'ok' : 'caution') : 'warn',
       title: 'Dynamic contact angle (capillary number)',
       value: `Ca ≈ ${sci(CaEarly, 2)} (early) → ${sci(CaRef, 2)} (at target)`,
-      detail: `Ca = μv/σ compares viscous to surface-tension forces at the moving contact line. When Ca is above roughly 10⁻⁴–10⁻³ the advancing (dynamic) contact angle is larger than the static angle used here, which slows the earliest filling. ${CaEarly >= 1e-3 ? 'That is the case at the very start of filling.' : ''}`,
+      detail: `Ca = μv/σ compares viscous to surface-tension forces at the moving contact line. As a rough rule of thumb (an order of magnitude, not a sharp limit), once Ca is above about 10⁻⁴–10⁻³ the advancing (dynamic) contact angle is noticeably larger than the static angle used here, which slows the earliest filling. ${CaEarly >= 1e-3 ? 'That is the case at the very start of filling.' : ''}`,
     });
   }
 
-  // 4. Bond number: gravity vs surface tension at the pore scale.
+  // 4a. Bond number: gravity vs surface tension at the pore scale. This decides
+  //     whether the meniscus keeps its spherical-cap shape, NOT whether gravity
+  //     slows a vertical front (that is check 4b).
   const Bo = (rho * G * p.r * p.r) / p.sigma;
   out.push({
     id: 'bond', level: Bo < 1e-3 ? 'ok' : Bo < 0.1 ? 'caution' : 'warn',
-    title: 'Gravity (Bond number)',
+    title: 'Meniscus shape (Bond number)',
     value: `Bo = ρgr²/σ = ${sci(Bo, 2)}`,
-    detail: Bo < 1e-3 ? 'Gravity is negligible compared with surface tension at this pore size, so neglecting it is justified.' : 'Gravity is no longer negligible at this pore size; a vertical pore would fill more slowly than predicted.',
+    detail: Bo < 1e-3
+      ? 'Gravity cannot distort the meniscus inside a pore this small, so the spherical-cap meniscus behind p_c = 2σcosθ/r is justified.'
+      : 'The pore is wide enough for gravity to flatten the meniscus, so p_c = 2σcosθ/r is only approximate.',
   });
+
+  // 4b. Gravity on a vertical front: hydrostatic head of the wetted length vs the driving pressure.
+  const g = gravityCheck(p, ctx);
+  if (g) {
+    out.push({
+      id: 'gravity', level: g.ratio < 0.01 ? 'ok' : g.ratio < 0.1 ? 'caution' : 'warn',
+      title: 'Gravity on a vertical front',
+      value: `ρgL/Δp = ${sci(g.ratio, 2)}${Number.isFinite(g.hJurin) ? `; Jurin height ${sig(g.hJurin, 2)} m` : ''}`,
+      detail: `If the electrode stood upright, the front would have climbed ${sig(g.height * 1e3, 3)} mm and its column would weigh ρgL = ${sig(g.head / 1e3, 2)} kPa against a driving pressure of ${sig(g.drive / 1e3, 3)} kPa. ${g.ratio < 0.01 ? 'That is negligible, so ignoring gravity is justified even for a vertical electrode.' : 'That is not negligible: a vertically climbing front would slow down and could stop, so the horizontal-pore result is optimistic.'}${Number.isFinite(g.hJurin) ? ` Pure capillary rise would stop at the Jurin height 2σcosθ/(ρgr) = ${sig(g.hJurin, 2)} m.` : ''}`,
+    });
+  }
 
   // 5. Contact angle near 90°.
   if (p.thetaDeg > 80) {

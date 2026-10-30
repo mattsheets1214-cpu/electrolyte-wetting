@@ -6,21 +6,21 @@ This file tells an AI coding assistant (Claude Code, Copilot, Cursor, …) and a
 
 A static, client-side teaching website for an introductory fluid mechanics course (University of Cincinnati, 2026, author Matthew Sheets): why lithium-ion cells take tens of minutes to wet with electrolyte although one pore fills in milliseconds. Priority order: **correct physics → clear teaching → working interactivity → honest verification/validation → design → easy editing.**
 
-Pages: Overview, Interactive lab, Theory, Code & verification, References. Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
+Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page), **Interactive demonstration** (`#/lab`), **Supplementary material** (`#/supplement`, includes S4 verification), **AI project documentation** (`#/ai-documentation`). Old routes `#/overview`, `#/theory`, `#/references`, `#/verification` are aliases in `src/main.js`. Deployed to GitHub Pages by `.github/workflows/site.yml` after tests pass on `main`. The owner approves every change by pull request. **Never push directly to `main`.**
 
 ## Architecture
 
-- Vite 8 + plain ES modules. No UI framework. Hash routing (`#/lab`, `#/theory/lesson-washburn`) so GitHub Pages needs no server config. `vite.config.js` uses `base: './'`.
+- Vite 8 + plain ES modules. No UI framework. Hash routing (`#/lab`, `#/paper/theory-washburn`) so GitHub Pages needs no server config. `vite.config.js` uses `base: './'`.
 - `src/main.js` — router; each page is `src/sections/<page>.js` exporting `render(container)` that may return a cleanup function.
 - `src/physics/` — **all** equations and numerics, SI units only, no DOM. Import through `src/physics/index.js`.
   - `capillary.js` Young–Laplace, Washburn coefficient, Mode A (closed form) and `integrateModeA` (numerical plumbing check).
   - `deadEnd.js` Mode B (dead-end pore + Boyle gas), solved in `y = (L/L_p)²` and dimensionless time; exact equilibrium and exact implicit trajectory.
   - `ode.js` hand-written Dormand–Prince 5(4) with step rejection on non-finite stages, plus Hermite event location.
   - `validation.js` rejects meaningless inputs (never clamps). `validity.js` dimensionless warnings (inertia, Re, Ca, Bo, θ near 90°, tiny pores, slenderness).
-  - `challenge.js` inverse problems with feasibility checks. `sweeps.js` data for Plots 2 and 3.
+  - `porous.js` closed-form Darcy/Kozeny–Carman relations (Supplementary S2 and checks only; not a lab solver). `sweeps.js` data for the lab plots and paper Figs. 8–9.
   - `checks.js` **the verification suite**, run by Vitest *and* live on the Code & verification page.
 - `src/data/parameters.js` every lab input: unit, range, default, `basis` (`measured` / `assumption` / `geometry`) and source note. `presets.js` scenarios.
-- `src/content/` all editable text: `lessons.js` (9 lessons, required fields enforced by tests), `quiz.js`, `references.js`, `video.js` (YouTube id for the Overview video slot), `modelVsReality.js`.
+- `src/content/` all editable text: `paper.js` (the paper: sections, numbered equations/figures/tables, nomenclature; markup documented at the top of the file), `supplement.js` (S1–S3), `citations.js` (numbered citation order), `references.js`, `aiDocs.js` (AI documentation; `null` = not yet supplied), `video.js` (YouTube id and verbatim transcript). `src/ui/markup.js` renders the paper markup.
 - `src/charts/plot.js` small SVG plotting module (linear/log axes, legend with line styles, tooltips, keyboard).
 - `src/diagrams/index.js` SVG diagrams drawn from geometry. `src/animations/pore.js` physics-linked animation (Anime.js Timer for playback); `motion.js` page/figure motion (Motion). Both degrade gracefully if the library fails and respect `prefers-reduced-motion`.
 - `python/wetting/model.py` independent reference implementation (standard library only; RK4 with step doubling). Runs in the browser through Pyodide (loaded on demand from jsDelivr, version pinned in `src/sections/verification.js`) and in pytest.
@@ -41,10 +41,11 @@ Pages: Overview, Interactive lab, Theory, Code & verification, References. Deplo
 
 1. Never invent experimental data, references, DOIs, URLs, quotes, transcripts, video ids, AI critiques, test results or personal reflections.
 2. Every numerical input must have a source in `src/content/references.js` or be labelled `assumption`.
-3. The video id in `src/content/video.js` stays `null` until a real video exists; the Overview then shows an empty, labelled slot. `tests/content.test.js` guards this — update that test deliberately when the real id is added. The AI-lab and Presentation pages were removed at the owner's request (2026-10-29); do not re-add them unless asked.
+3. The video id and transcript in `src/content/video.js`, and the empty slots in `src/content/aiDocs.js` (independent critique, second implementation, comparison, reflection), stay `null` until the real material exists; the site then shows labelled empty slots. `tests/content.test.js` guards this — update those tests deliberately when real material is added. A critique by the same model that built the site must never be labelled independent.
 4. Code shown on the site is cut from the real source using `// #region name` … `// #endregion` markers (see `region()` in `src/sections/verification.js`). If you rename or remove a region, update the page.
 5. Plots, outputs and animations must come from the solver. No hard-coded results.
 6. Distinguish verification (code solves its equations) from validation (equations describe reality).
+7. Paper style: no second person, no rhetorical questions, numbered citations [n] in order of first appearance, every number computed from `src/physics/` (tests enforce the first two and the numbering).
 
 ## Required workflow for any change
 
@@ -58,8 +59,8 @@ Pages: Overview, Interactive lab, Theory, Code & verification, References. Deplo
 
 | Request | Files |
 |---|---|
-| Rewrite or add a lesson | `src/content/lessons.js` (keep all required fields) |
-| Add a quiz question | `src/content/quiz.js` (one correct option, every option explained) |
+| Edit the paper | `src/content/paper.js` — impersonal journal voice; every equation in the main text derivable with introductory fluid mechanics; advanced material goes to `src/content/supplement.js` |
+| Add AI-documentation material | `src/content/aiDocs.js`, `src/content/video.js` (real material only) |
 | Add an electrolyte parameter set | `src/data/presets.js` + reference in `src/content/references.js`; mark `basis` honestly |
 | Change an input range/default | `src/data/parameters.js` (tests check default within range) |
 | New plot | compute data in `src/physics/sweeps.js` (tested), draw with `createPlot` in a section |

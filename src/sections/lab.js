@@ -1,5 +1,8 @@
 /**
- * Interactive lab — the centrepiece.
+ * Interactive demonstration — supplement to the paper (src/content/paper.js).
+ * Two modes only: (A) single-capillary Lucas–Washburn filling, paper Eqs. (2),
+ * (5)–(8); (B) simplified vacuum-assisted filling of a dead-end pore, paper
+ * Eqs. (9)–(11). Equation numbers shown on the page are computed from the paper.
  *
  * Data flow (one direction only):
  *   controls (display units) → toSIParams → physics solvers → outputs, plots,
@@ -7,20 +10,27 @@
  * Nothing shown here is hard-coded; every number comes from src/physics/.
  */
 import {
-  solveModeA, integrateModeA, solveModeB, exactTrajectoryB, validityChecks, timeSweep, vacuumSweep,
-  SWEEPS, formatTime, formatLength, sci, sig, P_LIQUID_ABS, requiredRadius, requiredGasPressure, capillaryPressure,
+  solveModeA, integrateModeA, solveModeB, validityChecks, timeSweep, vacuumSweep,
+  SWEEPS, formatTime, formatLength, sci, sig, P_LIQUID_ABS,
 } from '../physics/index.js';
 import { PARAMETERS, DEFAULTS, FIXED, toSIParams } from '../data/parameters.js';
 import { PRESETS } from '../data/presets.js';
-import { MODEL_VS_REALITY } from '../content/modelVsReality.js';
+import { eqNumber } from '../ui/markup.js';
 import { createParamControl } from '../ui/controls.js';
 import { createPlot } from '../charts/plot.js';
 import { PoreAnimation, interp } from '../animations/pore.js';
-import { tex, texBlock } from '../ui/math.js';
 import { esc, rafThrottle } from '../ui/dom.js';
 import { pulse } from '../animations/motion.js';
+import { errorsForMode } from '../ui/modeErrors.js';
 
 const LEVEL_TEXT = { ok: 'OK', caution: 'Caution', warn: 'Warning', info: 'Note' };
+/** Validity checks shown here: only those whose physics is discussed in the paper (others are in Supplementary Section S3). */
+const SHOWN_CHECKS = new Set(['reynolds', 'capillary-number', 'gravity', 'theta', 'continuum', 'slender', 'idealized']);
+const E = (id) => `Eq. (${eqNumber(id)})`;
+const ASSUMPTIONS = {
+  A: () => `<b>Mode A — single-capillary Lucas–Washburn filling</b> (paper Eqs. (${eqNumber('pc')}) and (${eqNumber('lwGeneral')})–(${eqNumber('tau')})). One straight or tortuous cylindrical pore of uniform radius; incompressible Newtonian liquid; steady, laminar, fully developed flow with no slip; inertia and gravity neglected; static contact angle; gas ahead of the front escapes at constant pressure; constant driving pressure p<sub>c</sub> + Δp<sub>a</sub>. Valid while Re ≪ 2300, the front speed is low enough for a static contact angle (Ca), and the electrode can be represented by one representative radius.`,
+  B: () => `<b>Mode B — simplified vacuum-assisted filling</b> (paper Eqs. (${eqNumber('boyle')})–(${eqNumber('eqFill')})). Same pore and flow assumptions as Mode A, plus: the pore is closed at its far end; non-condensable gas sealed at p<sub>g0</sub> (absolute) is compressed isothermally as an ideal gas; no gas escape, dissolution or solvent vapour; liquid at the entrance fixed at p<sub>L</sub> = 101.3 kPa (reservoir vented after the pore mouth is sealed). This is a worst case for gas trapping: real, connected electrodes trap less gas.`,
+};
 
 /** Pick a display unit for a set of lengths (m). */
 function lengthUnit(maxM) {
@@ -42,25 +52,26 @@ export function render(root) {
 
   root.innerHTML = `
   <header class="page-head">
-    <h1>Interactive lab</h1>
-    <p>Change the pore, the liquid and the pressures; every number, plot and animation below is recomputed by the solver. Mode A is an open capillary with an exact solution. Mode B is a dead-end pore where trapped gas pushes back.</p>
+    <h1>Interactive demonstration</h1>
+    <p>A supplement to the <a href="#/paper">paper</a>. Inputs can be changed and every number, plot and animation is recomputed from the paper's equations by the same code that produces the paper's figures. Mode A: single-capillary Lucas–Washburn filling. Mode B: simplified vacuum-assisted filling of a dead-end pore.</p>
   </header>
   <div class="lab">
     <aside class="controls" aria-label="Model inputs">
       <div class="mode-switch" role="group" aria-label="Model mode">
-        <button type="button" data-mode="A" aria-pressed="true">Mode A<span>open capillary</span></button>
-        <button type="button" data-mode="B" aria-pressed="false">Mode B<span>dead end + trapped gas</span></button>
+        <button type="button" data-mode="A" aria-pressed="true">Mode A<span>Lucas–Washburn filling</span></button>
+        <button type="button" data-mode="B" aria-pressed="false">Mode B<span>vacuum-assisted filling</span></button>
       </div>
       <fieldset><legend>Scenarios</legend><div class="presets" data-role="presets"></div></fieldset>
       <fieldset data-group="shared"><legend>Pore and liquid (both modes)</legend></fieldset>
-      <fieldset data-group="A"><legend>Open capillary (Mode A, Plot 2)</legend></fieldset>
-      <fieldset data-group="B"><legend>Dead-end pore (Mode B, Plot 3)</legend>
+      <fieldset data-group="A"><legend>Lucas–Washburn filling (Mode A, Plot 2)</legend></fieldset>
+      <fieldset data-group="B"><legend>Vacuum-assisted filling (Mode B, Plot 3)</legend>
         <p class="small muted" style="margin:6px 0 0">Liquid-side pressure fixed at ${FIXED.pL.display}. ${FIXED.temperature.display}, properties not temperature-corrected.</p>
       </fieldset>
       <div class="btn-row"><button class="btn" type="button" data-act="reset">Reset to baseline</button></div>
     </aside>
 
     <div class="lab-main">
+      <div class="note note--liquid small" data-role="assumptions"></div>
       <div data-role="status" role="alert"></div>
       <div class="outputs" data-role="outputs" aria-live="polite"></div>
       <p class="explain" data-role="explain" style="margin-top:var(--space-4)"></p>
@@ -87,16 +98,11 @@ export function render(root) {
 
       <h2 id="plot-3">Plot 3 · Trapped gas and vacuum</h2>
       <figure class="figure"><div class="figure__well figure__well--plain"><div data-role="plot3"></div></div>
-        <figcaption>Equilibrium fill fraction of one idealized dead-end pore against the initial absolute gas pressure. The line is the exact formula 1 − p<sub>g0</sub>/(p<sub>L</sub> + p<sub>c</sub>); squares are where the numerical ODE solution actually stopped. Real, connected electrodes trap much less gas than this worst case, because gas can escape through neighbouring unfilled pores.</figcaption></figure>
+        <figcaption>Equilibrium fill fraction of one idealized dead-end pore against the initial absolute pressure of the non-condensable gas sealed in it (p<sub>g0</sub>; solvent vapour and gas dissolution are not modelled). The line is the analytical equilibrium, paper ${E('eqFill')}; squares are where the numerical solution of ${E('deadFront')} actually stopped. Real, connected electrodes trap much less gas than this worst case, because gas can escape through neighbouring unfilled pores.</figcaption></figure>
 
-      <h2 id="validity">Is the model valid here?</h2>
+      <h2 id="validity">Validity limits for the current inputs</h2>
       <ul class="validity" data-role="validity"></ul>
-
-      <h2 id="model-vs-reality">Model versus reality</h2>
-      <div class="table-wrap"><table><tbody>${MODEL_VS_REALITY.map((r) => `<tr><th scope="row" style="width:28%">${esc(r.head)}</th><td>${esc(r.body)}</td></tr>`).join('')}</tbody></table></div>
-
-      <h2 id="challenge">Guided engineering challenge</h2>
-      <div data-role="challenge"></div>
+      <p class="small muted">Additional checks (inertial start-up, meniscus shape) and further limitations are given in <a href="#/supplement/s3">Supplementary Section S3</a>. Comparison with published experiments: paper <a href="#/paper/discussion-experiment">Section 5.5</a>.</p>
     </div>
   </div>`;
 
@@ -136,11 +142,14 @@ export function render(root) {
     state.mode = m;
     modeBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
     hostA.hidden = m !== 'A'; hostB.hidden = m !== 'B';
+    assumptionsBox.innerHTML = ASSUMPTIONS[m]();
     update();
   }
   modeBtns.forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
 
   // ------------------------------------------------------------- figures
+  const assumptionsBox = root.querySelector('[data-role=assumptions]');
+  assumptionsBox.innerHTML = ASSUMPTIONS.A();
   const animHost = root.querySelector('[data-role=anim]');
   const hostA = document.createElement('div'), hostB = document.createElement('div');
   animHost.append(hostA, hostB);
@@ -152,7 +161,7 @@ export function render(root) {
   const plot1b = createPlot(root.querySelector('[data-role=plot1b]'), { xLabel: 't', yLabel: 'p_g (kPa abs)', height: 220, yZero: false });
   const plot2 = createPlot(root.querySelector('[data-role=plot2]'), { xLabel: '', yLabel: 'time to target (s)', xScale: 'log', yScale: 'log', height: 300 });
   const plot3 = createPlot(root.querySelector('[data-role=plot3]'), {
-    xLabel: 'initial gas pressure p_g0 (kPa abs)', yLabel: 'equilibrium fill (%)', xScale: 'log', height: 300,
+    xLabel: 'initial non-condensable gas pressure p_g0 (kPa abs)', yLabel: 'equilibrium fill (%)', xScale: 'log', height: 300,
     xFormat: (v) => String(Number(v.toPrecision(3))), tipX: (v) => `${sig(v, 3)} kPa`, tipY: (v) => `${sig(v, 4)} %`,
   });
   const sweepSel = root.querySelector('#sweep-sel');
@@ -182,14 +191,15 @@ export function render(root) {
     const p = toSIParams(state.values);
     const resA = solveModeA(p);
     const resB = solveModeB(p);
-    const errs = [...(resA.ok ? [] : resA.errors), ...(resB.ok ? [] : resB.errors)];
-    const uniq = errs.filter((e, i) => errs.findIndex((q) => q.field === e.field) === i);
+    // Only the active mode's errors (shared fields are checked by both modes).
+    const uniq = errorsForMode(state.mode, resA, resB);
     showErrors(uniq);
     if (uniq.length) { outputs.innerHTML = ''; explain.textContent = ''; return; }
 
     if (state.mode === 'A') renderModeA(p, resA); else renderModeB(p, resB);
-    renderPlot2(p);
-    renderPlot3(p, resB);
+    // A plot that belongs to the other mode is drawn only when that mode's inputs are valid.
+    if (resA.ok) renderPlot2(p); else plot2.update({ series: [] });
+    if (resB.ok) renderPlot3(p, resB); else plot3.update({ series: [] });
     pulse(outputs.querySelector('.out--primary'));
   }
   const schedule = rafThrottle(update);
@@ -198,9 +208,9 @@ export function render(root) {
     const pcK = a.pc / 1e3;
     outputs.innerHTML = [
       out('Time to target', a.fills ? formatTime(a.tTarget).value : '∞', a.fills ? formatTime(a.tTarget).unit : '', a.fills ? `X = ${formatLength(p.X).text}, path τX = ${formatLength(a.Lpath).text}` : 'does not fill', true),
-      out('Capillary pressure', sig(pcK, 4), 'kPa', '2σ cos θ / r'),
-      out('Total drive', sig(a.dpTotal / 1e3, 4), 'kPa', 'p_c + Δpₐ'),
-      out('Washburn coefficient', a.fills ? sci(a.D, 4) : '0', 'm²/s', 'D = r²Δp/(4μ), L² = D t'),
+      out('Capillary pressure', sig(pcK, 4), 'kPa', `p_c = 2σ cos θ / r, ${E('pc')}`),
+      out('Total drive', sig(a.dpTotal / 1e3, 4), 'kPa', 'Δp = p_c + Δpₐ'),
+      out('Washburn coefficient', a.fills ? sci(a.D, 4) : '0', 'm²/s', `D_W = r²Δp/(4μ), L² = D_W t, ${E('lwGeneral')}`),
     ].join('');
 
     if (!a.fills) {
@@ -232,7 +242,7 @@ export function render(root) {
       vlines: [{ value: xAxis(a.tTarget), label: tt }],
       description: `Distance rises as the square root of time and reaches the target at ${tt}.`,
     });
-    root.querySelector('[data-role=p1-cap]').innerHTML = `The line is the exact solution; the open circles are the numerical solution of ds/dt = r²Δp/(4μ). They agree to better than 10⁻⁶ (see Code &amp; verification). ${state.sqrtAxis ? 'Against √t the line is straight.' : 'Tick the box to replot against √t.'}`;
+    root.querySelector('[data-role=p1-cap]').innerHTML = `The line is the analytical solution, paper ${E('tau')}; the open circles are a numerical integration of ${E('front')} in s = L², shown as a check. They agree to better than 10⁻⁶ (<a href="#/supplement/s4">Supplementary Section S4</a>). ${state.sqrtAxis ? 'Against √t the line is straight.' : 'Tick the box to replot against √t.'}`;
     root.querySelector('[data-role=plot1b-wrap]').hidden = true;
 
     animA.load({
@@ -244,12 +254,12 @@ export function render(root) {
       targetLabel: `target ${formatLength(p.X).text}`,
     });
     animCap.textContent = 'The open end lets gas escape freely, so the drive stays constant.';
-    validityList.innerHTML = renderValidity(validityChecks(p, { mode: 'A', D: a.D, Lref: a.Lpath, tRef: a.tTarget }));
+    validityList.innerHTML = renderValidity(validityChecks(p, { mode: 'A', D: a.D, Lref: a.Lpath, tRef: a.tTarget, height: p.X }));
   }
 
   function renderModeB(p, b) {
     if (!b.fills) {
-      outputs.innerHTML = [out('Equilibrium fill', '0', '%', 'no liquid enters', true), out('Capillary pressure', sig(b.pc / 1e3, 4), 'kPa', '2σ cos θ / r')].join('');
+      outputs.innerHTML = [out('Equilibrium fill', '0', '%', 'no liquid enters', true), out('Capillary pressure', sig(b.pc / 1e3, 4), 'kPa', `p_c = 2σ cos θ / r, ${E('pc')}`)].join('');
       explain.textContent = b.reason;
       plot1.update({ series: [] });
       root.querySelector('[data-role=plot1b-wrap]').hidden = true;
@@ -258,32 +268,32 @@ export function render(root) {
     }
     const t95 = b.t95Num != null ? formatTime(b.t95Num) : null;
     outputs.innerHTML = [
-      out('Equilibrium fill L_eq/L_p', sig(b.fillNum * 100, 4), '%', `exact ${sig(b.fillEq * 100, 6)} %, numerical ${sig(b.fillNum * 100, 6)} %`, true),
-      out('Time to 95 % of equilibrium', t95 ? t95.value : '—', t95 ? t95.unit : '', b.t95Num != null ? `exact ${formatTime(b.t95Exact).text}` : 'solver did not reach equilibrium'),
-      out('Capillary pressure', sig(b.pc / 1e3, 4), 'kPa', '2σ cos θ / r'),
+      out('Equilibrium fill L_eq/L_p', sig(b.fillNum * 100, 4), '%', `${E('eqFill')}: ${sig(b.fillEq * 100, 6)} %; numerical end state ${sig(b.fillNum * 100, 6)} %`, true),
+      out('Time to 95 % of equilibrium', t95 ? t95.value : '—', t95 ? t95.unit : '', b.t95Num != null ? `numerical solution of ${E('deadFront')}` : 'solver did not reach equilibrium'),
+      out('Capillary pressure', sig(b.pc / 1e3, 4), 'kPa', `p_c = 2σ cos θ / r, ${E('pc')}`),
       out('Final gas pressure', sig((p.pg0 / (1 - b.fillNum)) / 1e3, 4), 'kPa abs', `p_L + p_c = ${sig(b.P / 1e3, 4)} kPa`),
     ].join('');
-    explain.innerHTML = `Gas starts at ${sig(p.pg0 / 1e3, 3)} kPa absolute. The liquid side pushes with p<sub>L</sub> + p<sub>c</sub> = ${sig(b.P / 1e3, 4)} kPa. As the liquid advances the gas is squeezed (Boyle's law) until its pressure matches that push, which happens when the pore is <strong>${sig(b.fillEq * 100, 4)} %</strong> full. ${p.pg0 > 20e3 ? 'Lowering the initial gas pressure — evacuating before filling — is the only way to fill it further in this model.' : 'Because so little gas was left, the liquid nearly reaches the dead end.'} The fill fraction does not depend on viscosity or pore length; the time does (t ∝ μL<sub>p</sub>²).`;
+    explain.innerHTML = `Non-condensable gas is sealed in the pore at ${sig(p.pg0 / 1e3, 3)} kPa absolute; the reservoir is then vented to atmosphere. The liquid side pushes with p<sub>L</sub> + p<sub>c</sub> = ${sig(b.P / 1e3, 4)} kPa. As the liquid advances the gas is squeezed (Boyle's law) until its pressure matches that push, which happens when the pore is <strong>${sig(b.fillEq * 100, 4)} %</strong> full. ${p.pg0 > 20e3 ? 'Lowering the initial gas pressure — evacuating before filling — is the only way to fill it further in this model.' : 'Because so little gas was left, the liquid nearly reaches the dead end.'} The fill fraction does not depend on viscosity or pore length; the time does (t ∝ μL<sub>p</sub>²).`;
 
-    // Plot 1: exact trajectory + numerical points
-    const ex = exactTrajectoryB(b, p.Lp);
+    // Plot 1: numerical solution of the dead-end front equation (the exact implicit
+    // trajectory is used only for verification, Supplementary Sections S1 and S4).
     const tEnd = Math.min(b.series.t[b.series.t.length - 1], (b.t95Num || b.t95Exact) * 3);
     const tu = timeUnit(tEnd), lu = lengthUnit(p.Lp);
-    const keep = ex.t.map((t, i) => (t <= tEnd ? i : -1)).filter((i) => i >= 0);
+    const keep = b.series.t.map((t, i) => (t <= tEnd ? i : -1)).filter((i) => i >= 0);
     const nIdx = subsample(b.series.t, 40).filter((i) => b.series.t[i] <= tEnd);
+    const tOpen = Array.from({ length: 161 }, (_, i) => (tEnd * i) / 160);
     const xAxis = (t) => (state.sqrtAxis ? Math.sqrt(t * tu.f) : t * tu.f);
     plot1.setOptions({ xLabel: state.sqrtAxis ? `√t (√${tu.u})` : `time t (${tu.u})`, yLabel: `penetration L (${lu.u})`, tipY: (v) => `${sig(v, 4)} ${lu.u}`, tipX: (v) => (state.sqrtAxis ? `√t = ${sig(v, 4)}` : `${sig(v, 4)} ${tu.u}`) });
     const open = solveModeA({ ...p, dpApplied: P_LIQUID_ABS - p.pg0, X: p.Lp, tau: 1 });
     plot1.update({
       series: [
-        { id: 'exact', name: 'Exact solution t(L)', x: keep.map((i) => xAxis(ex.t[i])), y: keep.map((i) => ex.L[i] * lu.f), kind: 'line', color: 'var(--liquid)' },
-        { id: 'num', name: `Numerical ODE (${b.steps} steps)`, x: nIdx.map((i) => xAxis(b.series.t[i])), y: nIdx.map((i) => b.series.L[i] * lu.f), kind: 'points', color: 'var(--ink)' },
-        ...(open.ok && open.fills ? [{ id: 'open', name: 'Same pore if the gas could escape', x: keep.map((i) => xAxis(ex.t[i])), y: keep.map((i) => Math.min(open.L(ex.t[i]), p.Lp) * lu.f), kind: 'dashed', color: 'var(--ink-3)' }] : []),
+        { id: 'num', name: `Numerical solution of ${E('deadFront')} (${b.steps} steps)`, x: keep.map((i) => xAxis(b.series.t[i])), y: keep.map((i) => b.series.L[i] * lu.f), kind: 'line', color: 'var(--liquid)' },
+        ...(open.ok && open.fills ? [{ id: 'open', name: `Same pore if the gas could escape, ${E('lwGeneral')}`, x: tOpen.map(xAxis), y: tOpen.map((t) => Math.min(open.L(t), p.Lp) * lu.f), kind: 'dashed', color: 'var(--ink-3)' }] : []),
       ],
       hlines: [{ value: b.fillEq * p.Lp * lu.f, label: `equilibrium ${sig(b.fillEq * 100, 3)} %`, color: 'var(--gas)' }, { value: p.Lp * lu.f, label: 'dead end' }],
       description: `The front approaches ${sig(b.fillEq * 100, 3)} percent of the pore length and stops.`,
     });
-    root.querySelector('[data-role=p1-cap]').innerHTML = 'The line is the exact implicit solution t/T = λ² − 2βλ + 2β(1−β) ln[(1−β)/(1−β−λ)]; circles are the adaptive Runge–Kutta solution of ds/dt = r²(p<sub>L</sub> + p<sub>c</sub> − p<sub>g</sub>)/(4μ). The dashed curve shows the same pore with the gas able to escape (Mode A with Δpₐ = p<sub>L</sub> − p<sub>g0</sub>).';
+    root.querySelector('[data-role=p1-cap]').innerHTML = `The solid line is the numerical solution of paper ${E('deadFront')}, with the gas pressure from ${E('boyle')}; it levels off at the equilibrium of ${E('eqFill')}. The dashed curve shows the same pore with the gas able to escape (Mode A with Δpₐ = p<sub>L</sub> − p<sub>g0</sub>). The numerical solution is checked against an exact solution in <a href="#/supplement/s4">Supplementary Section S4</a>.`;
 
     const wrap = root.querySelector('[data-role=plot1b-wrap]');
     wrap.hidden = false;
@@ -327,75 +337,20 @@ export function render(root) {
     const v = vacuumSweep(p);
     plot3.update({
       series: [
-        { id: 'exact', name: 'Exact equilibrium', x: v.exact.x.map((x) => x / 1e3), y: v.exact.y.map((y) => y * 100), kind: 'line', color: 'var(--liquid)' },
-        { id: 'num', name: 'Numerical end state', x: v.numerical.map((n) => n.pg0 / 1e3), y: v.numerical.map((n) => n.fill * 100), kind: 'points', marker: 'square', color: 'var(--ink)' },
+        { id: 'exact', name: `Analytical equilibrium, ${E('eqFill')}`, x: v.exact.x.map((x) => x / 1e3), y: v.exact.y.map((y) => y * 100), kind: 'line', color: 'var(--liquid)' },
+        { id: 'num', name: `Numerical end state of ${E('deadFront')}`, x: v.numerical.map((n) => n.pg0 / 1e3), y: v.numerical.map((n) => n.fill * 100), kind: 'points', marker: 'square', color: 'var(--ink)' },
       ],
       marker: b.ok && b.fills ? { x: p.pg0 / 1e3, y: b.fillNum * 100, color: 'var(--gas)' } : null,
       yDomain: [0, 100],
       xDomain: [0.1, 101.3],
-      description: 'Fill fraction falls as the initial gas pressure rises.',
+      description: 'Fill fraction falls as the initial non-condensable gas pressure rises.',
     });
   }
 
   function renderValidity(list) {
-    return list.map((c) => `<li data-level="${c.level}"><span class="lvl">${LEVEL_TEXT[c.level]}: ${esc(c.title)}</span><span class="v-val">${esc(c.value)}</span><details><summary>Why</summary>${esc(c.detail)}</details></li>`).join('');
+    return list.filter((c) => SHOWN_CHECKS.has(c.id)).map((c) => `<li data-level="${c.level}"><span class="lvl">${LEVEL_TEXT[c.level]}: ${esc(c.title)}</span><span class="v-val">${esc(c.value)}</span><details><summary>Why</summary>${esc(c.detail)}</details></li>`).join('');
   }
 
-  renderChallenge(root.querySelector('[data-role=challenge]'));
   update();
   return () => { animA.destroy(); animB.destroy(); plot1.destroy(); plot1b.destroy(); plot2.destroy(); plot3.destroy(); };
-}
-
-// ------------------------------------------------------------------ challenge
-function renderChallenge(host) {
-  const base = { sigma: 29.4e-3, thetaDeg: 30, mu: 4.4e-3 };
-  const r1 = requiredRadius({ X: 0.04, tMax: 1800, ...base });
-  const r2 = requiredRadius({ X: 0.04, tMax: 1800, ...base, mu: 8e-3 });
-  const g = r1.feasible ? requiredGasPressure({ fillTarget: 0.95, pL: P_LIQUID_ABS, sigma: base.sigma, thetaDeg: base.thetaDeg, r: r1.r }) : { feasible: false };
-  const pcAt = r1.feasible ? capillaryPressure(base.sigma, base.thetaDeg, r1.r) : NaN;
-
-  host.innerHTML = `
-  <div class="prose">
-    <p>A cell maker wants electrolyte to travel <strong>4 cm in under 30 minutes</strong> from the edge of the electrode stack. Use Mode A with σ = 29.4 mN/m, μ = 4.4 mPa·s, θ = 30°, straight pores (τ = 1) and no applied pressure.</p>
-  </div>
-  <form class="challenge" novalidate>
-    <div class="quiz-q"><label for="ch1"><b>1.</b> What is the smallest pore radius that meets the target?</label>
-      <div class="btn-row" style="margin-top:6px"><input id="ch1" type="number" step="any" inputmode="decimal"> <span>µm</span> <button class="btn" type="button" data-check="1">Check</button></div>
-      <div class="quiz-fb" data-fb="1" hidden></div></div>
-    <div class="quiz-q"><label for="ch2"><b>2.</b> The maker switches to a more viscous electrolyte, μ = 8 mPa·s. What is the smallest radius now?</label>
-      <div class="btn-row" style="margin-top:6px"><input id="ch2" type="number" step="any" inputmode="decimal"> <span>µm</span> <button class="btn" type="button" data-check="2">Check</button></div>
-      <div class="quiz-fb" data-fb="2" hidden></div></div>
-    <div class="quiz-q"><label for="ch3"><b>3.</b> Using your radius from part 1, what is the highest initial gas pressure (absolute) that keeps gas trapping in an idealized dead-end pore below 5 %? (p<sub>L</sub> = 101.3 kPa)</label>
-      <div class="btn-row" style="margin-top:6px"><input id="ch3" type="number" step="any" inputmode="decimal"> <span>kPa abs</span> <button class="btn" type="button" data-check="3">Check</button></div>
-      <div class="quiz-fb" data-fb="3" hidden></div></div>
-    <details class="check"><summary>Show the worked solution</summary>
-      <div class="prose" style="font-size:1.05rem">
-      <p><b>Feasibility first.</b> θ = 30° &lt; 90°, so there is a positive capillary drive and a solution exists. Under pure capillary drive the time falls as the radius grows (t ∝ 1/r), so the target sets a <em>minimum</em> radius.</p>
-      ${texBlock('t = \\frac{2\\mu X^2}{r\\,\\sigma\\cos\\theta}\\quad\\Rightarrow\\quad r_{min} = \\frac{2\\mu X^2}{t_{max}\\,\\sigma\\cos\\theta}')}
-      <p><b>1.</b> ${tex(`r_{min} = \\frac{2(0.0044)(0.04)^2}{(1800)(0.0294)\\cos 30^\\circ} = ${sig(r1.r * 1e6, 4)}\\ \\mu\\text{m}`)}. Check: N·s/m² × m² ÷ (s × N/m) = m ✓.</p>
-      <p><b>2.</b> Time is proportional to μ, so the radius must grow by 8/4.4: ${tex(`r_{min} = ${sig(r2.r * 1e6, 4)}\\ \\mu\\text{m}`)}. Alternatives: push with an applied pressure, raise the temperature to lower μ, improve wetting (lower θ), or accept more time. Tortuosity τ would multiply both answers by τ².</p>
-      <p><b>3.</b> At r = ${sig(r1.r * 1e6, 4)} µm, ${tex(`p_c = 2\\sigma\\cos\\theta/r = ${sig(pcAt / 1e3, 4)}\\ \\text{kPa}`)}. Trapping below 5 % means ${tex('L_{eq}/L_p \\ge 0.95')}, so</p>
-      ${texBlock(`p_{g0} \\le (1 - 0.95)(p_L + p_c) = 0.05\\,(101.3 + ${sig(pcAt / 1e3, 4)})\\ \\text{kPa} = ${sig(g.pg0Max / 1e3, 4)}\\ \\text{kPa abs}`)}
-      <p>Smaller pores pull harder, which helps here: a larger radius would need a deeper vacuum.</p>
-      <p><b>Why real cells can do better:</b> pores are connected, so gas escapes through unfilled neighbours instead of being trapped in a dead end. This answer is a conservative bound, not a production setpoint.</p>
-      </div>
-    </details>
-  </form>`;
-
-  const answers = { 1: r1.r * 1e6, 2: r2.r * 1e6, 3: g.pg0Max / 1e3 };
-  const hints = {
-    1: (v) => (v < answers[1] ? 'Too small — smaller pores fill MORE slowly under pure capillary drive (t ∝ 1/r). Check the 1/r dependence.' : 'Too large to be the minimum. Larger pores work, but the question asks for the smallest. Rearrange t = 2μX²/(rσcosθ) for r.'),
-    2: (v) => (Math.abs(v - answers[1]) / answers[1] < 0.03 ? 'That is the part-1 answer. Viscosity changed: time ∝ μ, so r_min ∝ μ.' : v < answers[2] ? 'Too small. With μ = 8 mPa·s the time is 8/4.4 times longer for the same pore.' : 'Too large. r_min scales in proportion to μ.'),
-    3: (v) => (v > answers[3] ? 'Too high — that leaves more than 5 % gas. Use L_eq/L_p = 1 − p_g0/(p_L + p_c) ≥ 0.95, with p_c evaluated at your part-1 radius.' : 'Lower than needed (it works, but asks for a deeper vacuum than necessary). Find the largest p_g0 that still gives 95 %.'),
-  };
-  host.querySelectorAll('[data-check]').forEach((btn) => btn.addEventListener('click', () => {
-    const k = btn.dataset.check;
-    const v = Number(host.querySelector(`#ch${k}`).value);
-    const fb = host.querySelector(`[data-fb="${k}"]`);
-    fb.hidden = false;
-    if (!Number.isFinite(v) || v <= 0) { fb.dataset.ok = 'false'; fb.textContent = 'Enter a positive number.'; return; }
-    const ok = Math.abs(v - answers[k]) / answers[k] <= 0.03;
-    fb.dataset.ok = String(ok);
-    fb.textContent = ok ? `Correct (within 3 %). Model answer: ${sig(answers[k], 4)}.` : hints[k](v);
-  }));
 }

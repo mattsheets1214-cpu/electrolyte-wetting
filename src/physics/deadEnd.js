@@ -49,7 +49,7 @@ export function solveModeB(p, opts = {}) {
   if (!(drive0 > 0)) {
     return {
       ok: true, errors: [], fills: false, pc, P, drive0, fillEq: 0, fillNum: 0,
-      reason: 'At the pore entrance the trapped-gas pressure already equals or exceeds the liquid pressure plus the capillary pressure (p_g0 ≥ p_L + p_c), so no liquid enters.',
+      reason: 'At the pore entrance the initial non-condensable gas pressure already equals or exceeds the liquid pressure plus the capillary pressure (p_g0 ≥ p_L + p_c), so no liquid enters.',
     };
   }
 

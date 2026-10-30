@@ -54,7 +54,20 @@ export const REFERENCES = [
     url: 'https://doi.org/10.1007/s40820-021-00731-2',
     supports: 'Contact angle of 1 M LiPF₆ in EC/DMC on the separator used in that study: 65.4°, falling to 40.5° with 1 wt % additive. Shows how widely separator contact angles vary. (Author list abbreviated; check the full list before formal submission.)',
   },
+  {
+    id: 'sigmadmc2026', group: 'Electrolyte and separator properties', status: 'checked',
+    cite: 'Sigma-Aldrich (accessed 29 Oct 2026). Dimethyl carbonate, product D152927: product properties page.',
+    url: 'https://sigmaaldrich.com/US/en/product/sial/d152927',
+    supports: 'Vapour pressure of dimethyl carbonate listed as 18 mmHg (≈ 2.4 kPa) at 21.1 °C. Supplier data, used only to show the order of magnitude of solvent vapour in a pore (lesson 8); a peer-reviewed vapour-pressure source would be better for formal use.',
+  },
   // ------------------------------------------------------------ capillary physics
+  {
+    id: 'degennes2004', group: 'Capillary flow theory', status: 'bibliographic',
+    cite: 'de Gennes, P.-G., Brochard-Wyart, F., & Quéré, D. (2004). Capillarity and Wetting Phenomena: Drops, Bubbles, Pearls, Waves. Springer, New York. Chapter and page numbers to be confirmed.',
+    doi: '10.1007/978-0-387-21656-0',
+    url: 'https://doi.org/10.1007/978-0-387-21656-0',
+    supports: 'Standard text on surface and interfacial tension, the Laplace pressure of curved interfaces, Young\'s relation and contact angles (including hysteresis and rough surfaces), and capillary rise. Cited for the textbook background of lessons 2–4; title, authors, publisher, year and DOI confirmed from the publisher page, pages to be confirmed from the book.',
+  },
   {
     id: 'washburn1921', group: 'Capillary flow theory', status: 'bibliographic',
     cite: 'Washburn, E. W. (1921). The dynamics of capillary flow. Physical Review, 17(3), 273–283.',
@@ -93,6 +106,19 @@ export const REFERENCES = [
     doi: '10.1017/jfm.2019.328',
     url: 'https://doi.org/10.1017/jfm.2019.328',
     supports: 'Capillary rise into closed (dead-end) capillaries with gas compressibility, compared with experiments. A far more complete treatment than this site\'s Mode B, which neglects inertia, meniscus effects and gas-side drag.',
+  },
+  // ------------------------------------------------------------ porous media
+  {
+    id: 'bear1972', group: 'Porous-media flow', status: 'bibliographic',
+    cite: 'Bear, J. (1972). Dynamics of Fluids in Porous Media. American Elsevier, New York; unabridged corrected reprint, Dover Publications, 1988. Chapter and page numbers to be confirmed.',
+    url: 'https://find.library.upenn.edu/catalog/9977080168003681',
+    supports: 'Standard text on flow through porous media: Darcy\'s law, superficial (specific discharge) versus interstitial velocity, porosity, permeability and capillary-tube and Kozeny–Carman permeability models. Cited for lesson 7; bibliographic details confirmed from a library catalogue record, pages to be confirmed from the book.',
+  },
+  {
+    id: 'lautenschlaeger2022', group: 'Porous-media flow', status: 'checked',
+    cite: 'Lautenschlaeger, M. P., Prifling, B., Kellers, B., Weinmiller, J., Danner, T., Schmidt, V., & Latz, A. (2022). Understanding electrolyte filling of lithium-ion battery electrodes on the pore scale using the lattice Boltzmann method. arXiv preprint arXiv:2203.05218.',
+    url: 'https://arxiv.org/abs/2203.05218',
+    supports: 'Three-dimensional lattice Boltzmann simulations of electrolyte filling of virtual lithium-ion cathodes: final saturations of 63–97 % depending on wettability and microstructure, with residual gas left in the pore space. Cited as evidence that real fronts are not sharp and that gas can remain trapped (preprint version consulted; check for the published journal version before formal submission).',
   },
   // ------------------------------------------------------------ numerical methods
   {
