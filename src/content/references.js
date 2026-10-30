@@ -114,6 +114,12 @@ export const REFERENCES = [
     url: 'https://find.library.upenn.edu/catalog/9977080168003681',
     supports: 'Standard text on flow through porous media: Darcy\'s law, superficial (specific discharge) versus interstitial velocity, porosity, permeability and capillary-tube and Kozeny–Carman permeability models. Cited for lesson 7; bibliographic details confirmed from a library catalogue record, pages to be confirmed from the book.',
   },
+  {
+    id: 'lautenschlaeger2022', group: 'Porous-media flow', status: 'checked',
+    cite: 'Lautenschlaeger, M. P., Prifling, B., Kellers, B., Weinmiller, J., Danner, T., Schmidt, V., & Latz, A. (2022). Understanding electrolyte filling of lithium-ion battery electrodes on the pore scale using the lattice Boltzmann method. arXiv preprint arXiv:2203.05218.',
+    url: 'https://arxiv.org/abs/2203.05218',
+    supports: 'Three-dimensional lattice Boltzmann simulations of electrolyte filling of virtual lithium-ion cathodes: final saturations of 63–97 % depending on wettability and microstructure, with residual gas left in the pore space. Cited as evidence that real fronts are not sharp and that gas can remain trapped (preprint version consulted; check for the published journal version before formal submission).',
+  },
   // ------------------------------------------------------------ numerical methods
   {
     id: 'dormand1980', group: 'Numerical methods', status: 'bibliographic',

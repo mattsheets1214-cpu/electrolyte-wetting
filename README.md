@@ -1,17 +1,16 @@
 # electrolyte-wetting
-Interactive fluid mechanics learning website exploring electrolyte wetting, capillary flow, and trapped-gas effects in lithium-ion battery cells.
+An undergraduate engineering paper, with an interactive demonstration, on capillary penetration of electrolyte into lithium-ion battery electrodes.
 
-**Electrolyte Wetting: Why do lithium-ion battery cells take so long to fill?** — a University of Cincinnati introductory fluid mechanics project by Matthew Sheets (2026).
+**Capillary Penetration of Electrolyte into Porous Lithium-Ion Battery Electrodes: A Lucas–Washburn Analysis of Filling Time and Gas Entrapment** — a University of Cincinnati introductory fluid mechanics project by Matthew Sheets (2026).
 
-The site combines a teaching text with a virtual lab:
-
-| Section | What it does |
+| Page | What it contains |
 |---|---|
-| Overview | The "milliseconds vs. tens of minutes" paradox, as a draggable slide rule of distance vs. filling time, plus a slot for the video explanation |
-| Interactive lab | Mode A (open capillary, exact solution) and Mode B (dead-end pore with trapped gas, numerical ODE), three plots, an animated pore, validity checks, model-vs-reality panel, guided challenge |
-| Theory | Nine lessons from surface tension to trapped gas, plus a quiz |
-| Code & verification | The real solver code, 30 verification checks run live in the browser, convergence data, and an independent Python model run through Pyodide (WebAssembly) |
-| References | Verified bibliography, input-value sources, software, AI models, contribution statement |
+| Paper (`#/paper`, landing page) | Journal-style paper: abstract, nomenclature, 1 Introduction, 2 Governing theory (2.1–2.6), 3 Methodology, 4 Results (four figures computed live), 5 Discussion, 6 Conclusions, numbered references |
+| Interactive demonstration (`#/lab`) | Mode A (single-capillary Lucas–Washburn filling) and Mode B (simplified vacuum-assisted filling), with assumptions and validity limits labelled |
+| Supplementary material (`#/supplement`) | S1 additional derivations, S2 Darcy/Kozeny–Carman, S3 additional limitations, S4 numerical methods and verification (solver code, 29 live checks, convergence, Python via Pyodide) |
+| AI project documentation (`#/ai-documentation`) | Models, planning, prompts, critique, implementations, decisions, contribution and reflection, YouTube video and transcript slots |
+
+Old links (`#/overview`, `#/theory`, `#/references`, `#/verification`) redirect to the matching place.
 
 All calculations run in the visitor's browser. There is no server, account or API key.
 
@@ -41,10 +40,10 @@ python python/wetting/model.py          # prints the baseline hand-check numbers
 
 | Suite | Checks |
 |---|---|
-| `tests/verification.test.js` | The 30 checks in `src/physics/checks.js` — the same ones shown live on the Code & verification page |
-| `tests/physics.test.js` | Closed-form reference cases (`tests/fixtures/reference_cases.json`), sign conventions, exact Mode B trajectory, validity flags, challenge, sweeps, data files |
+| `tests/verification.test.js` | The 29 checks in `src/physics/checks.js` — the same ones shown live in Supplementary Section S4 |
+| `tests/physics.test.js` | Closed-form reference cases (`tests/fixtures/reference_cases.json`), sign conventions, exact Mode B trajectory, validity flags, Darcy relations, sweeps, data files |
 | `tests/pyodide.test.js` | Runs `python/wetting/model.py` inside Pyodide and compares with the JavaScript solver |
-| `tests/content.test.js` | Every lesson has all required parts; every citation resolves; evidence placeholders are not silently filled |
+| `tests/content.test.js` | Paper structure, equation/figure/table numbering, citations, journal-style guards (no second person, no questions), AI-documentation placeholders not silently filled |
 | `python/tests/test_model.py` | Reference cases, exact trajectory, SciPy Radau cross-check, scalings, invalid inputs |
 
 The reference cases are generated from closed-form formulas by `python/make_reference_cases.py`.
@@ -84,7 +83,7 @@ index.html                 page shell (header, nav, footer)
 src/main.js                router + styles + fonts
 src/physics/               equations, solvers, validation, validity checks, verification checks (SI units only)
 src/data/                  lab input definitions (ranges, defaults, sources) and preset scenarios
-src/content/               lessons, quiz, references, video id, model-vs-reality text
+src/content/               paper.js (the paper), supplement.js, citations.js, references.js, aiDocs.js, video.js
 src/sections/              one file per page
 src/charts/plot.js         dependency-free SVG plotting
 src/diagrams/              hand-built scientific diagrams
@@ -92,7 +91,7 @@ src/animations/            physics-linked pore animation (Anime.js) and interfac
 python/                    independent Python reference model, tests, reference-case generator
 tests/                     Vitest suites + shared fixtures
 docs/                      assumptions, verification, source audit, deployment notes
-docs/evidence/             Model A blueprint and the site-build prompt (kept in the repo, not published)
+docs/evidence/             Model A blueprint and verbatim prompts (kept in the repo, linked from the AI documentation page)
 ```
 
 ## Editing with an AI coding assistant
@@ -105,12 +104,12 @@ Read **[AI_CONTEXT.md](AI_CONTEXT.md)** first — it is written for AI assistant
 
 Whichever tool you use: ask for changes on a branch, require `npm test` to pass, and review the pull request before merging.
 
-Examples of requests that fit the structure: "Rewrite lesson 3 for a beginner" (`src/content/lessons.js`), "Add a validated electrolyte parameter set as a preset" (`src/data/presets.js` + a reference), "Improve the trapped-gas animation" (`src/animations/pore.js`), "Fix this numerical error" (`src/physics/` + a new test).
+Examples of requests that fit the structure: "Tighten the wording of Section 2.4" (`src/content/paper.js`), "Add a validated electrolyte parameter set as a preset" (`src/data/presets.js` + a reference), "Improve the trapped-gas animation" (`src/animations/pore.js`), "Fix this numerical error" (`src/physics/` + a new test).
 
 ## Adding your video
 
-When your video explanation is on YouTube, put its id (the part after `watch?v=`) and a title in `src/content/video.js`, and update the test in `tests/content.test.js` that checks the id is still empty. The Overview page then embeds it.
+When your video explanation is on YouTube, put its id (the part after `watch?v=`) and a title in `src/content/video.js`, and paste YouTube's auto-generated transcript, unedited, into `autoTranscript`. Update the matching test in `tests/content.test.js` deliberately. The AI project documentation page then embeds the video and the paper links to it.
 
 ## Licence and credits
 
-Code: add a licence of your choice before publishing if you want others to reuse it. Fonts are under the SIL Open Font License. See the References page for scientific sources and software.
+Code: add a licence of your choice before publishing if you want others to reuse it. Fonts are under the SIL Open Font License. See the paper's References and Data and code availability sections.

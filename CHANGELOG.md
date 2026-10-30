@@ -2,6 +2,27 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [2.0.0] — 2026-10-30 — journal-paper restructuring (branch `journal-paper`, awaiting review)
+
+Responds to the instructor's feedback (scientific/engineering journal style; every key element must be explainable by the author). Built on top of 1.2.0 (PR #6). No solver equation changed; every number still displayed is identical to before (checked by snapshot).
+
+### Added
+- **Paper** page (`src/content/paper.js`, `src/sections/paper.js`), now the landing page: abstract, keywords, nomenclature, Sections 1–6, 12 numbered equations, 9 numbered figures (4 result figures computed live), 3 numbered tables, numbered references, generative-AI declaration, data and code availability. Main-text equations limited to those derivable with introductory fluid mechanics.
+- **Supplementary material** page: S1 additional derivations (Young–Laplace curvature, slit pore, exact dead-end trajectory), S2 Darcy and Kozeny–Carman, S3 additional limitations, S4 numerical methods and verification (former Code & verification page).
+- **AI project documentation** page (`src/content/aiDocs.js`): models, blueprint, verbatim prompts, the (same-model, labelled not independent) audit, decisions with reasoning, AI build decisions, contribution statement, YouTube video and verbatim-transcript slots. Unfilled deliverables are shown as "Not yet supplied".
+- `docs/evidence/prompts-2026-10-29-30.md`: the author's prompts of 29–30 Oct, verbatim.
+- Numbered citation system (`src/content/citations.js`, `src/ui/cite.js`) and paper markup renderer (`src/ui/markup.js`).
+- Reference: Lautenschlaeger et al. (arXiv:2203.05218), pore-scale filling simulations.
+- Tests: paper structure, sequential numbering, every equation/figure/table referred to, citations, journal-style guards (no second person, no questions), AI-documentation placeholders, navigation, computed claim of Section 4.4.
+
+### Changed
+- Interactive lab renamed **Interactive demonstration**; two modes labelled as in the paper with assumptions and validity limits; outputs cite paper equation numbers; Mode B plots the numerical solution (exact trajectory only in S4); validity panel shows only checks discussed in the paper.
+- Old routes `#/overview`, `#/theory`, `#/references`, `#/verification` redirect to the paper or supplement.
+- `src/content/video.js` gains `recordedOn` and `autoTranscript`.
+
+### Removed
+- Overview page (slide-rule hero), nine Theory lessons, quiz, misconception boxes, guided challenge (and `src/physics/challenge.js` with its check), "model versus reality" panel (now paper Table 3 and Section 5), References page (now the paper's reference list). All remain in the Git history.
+
 ## [1.2.0] — 2026-10-29 — Phase 3 of the scientific audit (branch `phase3-audit-fixes`, awaiting review)
 
 Implements the corrections from "Electrolyte Wetting Website — Scientific Audit (Phase 1–2)" (commit 75faa77). No solver equation changed; every number the site displayed before is unchanged except the lesson 1 distance ratio (m5).

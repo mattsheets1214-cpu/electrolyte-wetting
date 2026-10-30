@@ -13,10 +13,10 @@
 | Long pore (entrance/meniscus effects neglected) | Short Mode B pores | L_p/r < 20 flag |
 | Tortuosity as a path-length factor τ = path ÷ straight line (some texts use its square) | Mode A electrode scaling | Labelled as an estimate; definition stated |
 | Electrode as a capillary bundle, k = εr²/(8τ²); sharp, fully saturated Darcy front | Lesson 7: why Mode A can stand in for an electrode (ε cancels) | Stated; Kozeny–Carman shown as a contrasting model |
-| Gas ahead of the front escapes at constant pressure (Mode A) | Mode A | Stated in lesson 5 |
+| Gas ahead of the front escapes at constant pressure (Mode A) | Mode A | Stated in paper Section 2.4 |
 | Mode B: dead end, isothermal ideal **non-condensable** gas, no dissolution, no gas-side drag | Trapping | Labelled as an upper bound |
-| Mode B scenario: evacuate, seal the pore mouth with liquid, vent the reservoir to 101.3 kPa | Mode B boundary conditions | Stated in lesson 8 and the parameter notes; dosing under vacuum (before venting) is not modelled |
-| Solvent vapour (DMC ≈ 2.4 kPa at 21 °C) condenses instead of compressing; ignored | Mode B at deep vacuum | Stated in lesson 8; Mode B numbers deliberately unchanged |
+| Mode B scenario: evacuate, seal the pore mouth with liquid, vent the reservoir to 101.3 kPa | Mode B boundary conditions | Stated in paper Section 2.6 and the parameter notes; dosing under vacuum (before venting) is not modelled |
+| Solvent vapour (DMC ≈ 2.4 kPa at 21 °C) condenses instead of compressing; ignored | Mode B at deep vacuum | Stated in paper Section 2.6 and Supplementary S3; Mode B numbers deliberately unchanged |
 | Liquid at 101.3 kPa abs; 25 °C; properties not temperature-corrected | Mode B, all | Shown as fixed settings |
 
 ## Input values
@@ -49,6 +49,9 @@
 - [ ] Obtain the Model B critique and decision table (no longer shown on the site; keep it wherever your course submission needs it).
 - [ ] Freeze the spec; run the two comparable implementations with identical prompts; run the shared tests on both; record results and bugs.
 - [ ] Record the practice presentation, get the AI critique (include site link + requirements), record the final video, add the video id to `src/content/video.js`; paste the verbatim auto-transcript.
-- [ ] Write lessons learned, future questions and your own contribution statement.
+- [ ] Write your reflection and contribution in your own words (`src/content/aiDocs.js` → `contribution`).
+- [ ] Independent critique by a second AI model, second implementation, shared-test comparison (`src/content/aiDocs.js`).
+- [ ] Add the YouTube id and the verbatim auto-generated transcript (`src/content/video.js`).
+- [ ] Confirm the published version of Lautenschlaeger et al. (arXiv:2203.05218) if one exists.
 - [ ] Add the instructor's reference-site URL to `DESIGN_INSPIRATION` in `src/content/references.js`.
 - [ ] Optionally confirm the full author list for Wang et al. 2021 (abbreviated as "et al.").

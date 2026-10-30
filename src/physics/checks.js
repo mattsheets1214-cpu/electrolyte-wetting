@@ -20,7 +20,6 @@
 import { solveModeA, integrateModeA, capillaryPressure, washburnCoefficient } from './capillary.js';
 import { solveModeB, exactTimeHat } from './deadEnd.js';
 import { validateInputs } from './validation.js';
-import { requiredRadius, requiredGasPressure } from './challenge.js';
 import { P_LIQUID_ABS } from './constants.js';
 import { darcyFrontTime, bundlePermeability } from './porous.js';
 
@@ -288,20 +287,6 @@ export const CHECKS = [
       const bNo = solveModeB({ ...BASE, pg0: 300e3 });
       const pass = !zero.fills && !neg.fills && zero.tTarget === Infinity && neg.tTarget === Infinity && !bNo.fills && bNo.fillEq === 0;
       return { pass, measured: `θ=90°: ${zero.fills}; Δp<0: ${neg.fills}; p_g0 > p_L+p_c: ${bNo.fills}`, expected: 'false, false, false' };
-    },
-  },
-
-  // ---------------------------------------------------------------- challenge solver
-  {
-    id: 'challenge-solver', category: 'Challenge',
-    title: 'Challenge inverse solutions round-trip through the forward model',
-    run() {
-      const rr = requiredRadius({ X: 0.04, tMax: 1800, sigma: BASE.sigma, thetaDeg: BASE.thetaDeg, mu: BASE.mu });
-      const tBack = solveModeA({ ...BASE, X: 0.04, r: rr.r }).tTarget;
-      const g = requiredGasPressure({ fillTarget: 0.95, pL: P_LIQUID_ABS, sigma: BASE.sigma, thetaDeg: BASE.thetaDeg, r: rr.r });
-      const fillBack = solveModeB({ ...BASE, r: rr.r, pg0: g.pg0Max }).fillNum;
-      const pass = near(tBack, 1800, 1e-10) && near(fillBack, 0.95, 1e-8);
-      return { pass, measured: `r_min = ${fmt(rr.r * 1e6)} µm → t = ${fmt(tBack)} s; p_g0,max = ${fmt(g.pg0Max / 1e3)} kPa → fill = ${fmt(fillBack)}`, expected: 't = 1800 s, fill = 0.95' };
     },
   },
 ];

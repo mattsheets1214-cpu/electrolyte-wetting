@@ -3,8 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import {
-  solveModeA, solveModeB, capillaryPressure, cosDeg, validityChecks, requiredRadius,
-  requiredGasPressure, formatTime, timeSweep, vacuumSweep, exactTimeHat,
+  solveModeA, solveModeB, capillaryPressure, cosDeg, validityChecks, formatTime, timeSweep, vacuumSweep, exactTimeHat,
 } from '../src/physics/index.js';
 import { BASE } from '../src/physics/checks.js';
 import { toSIParams, DEFAULTS, PARAMETERS } from '../src/data/parameters.js';
@@ -80,22 +79,6 @@ describe('validity indicators', () => {
     const ids = validityChecks({ ...BASE, thetaDeg: 88, r: 5e-9 }, { mode: 'A' }).map((c) => c.id);
     expect(ids).toContain('theta');
     expect(ids).toContain('continuum');
-  });
-});
-
-describe('challenge', () => {
-  it('4 cm in 30 min at baseline needs r ≥ 0.307 µm; μ = 8 mPa·s needs ≥ 0.559 µm', () => {
-    const a = requiredRadius({ X: 0.04, tMax: 1800, sigma: 29.4e-3, thetaDeg: 30, mu: 4.4e-3 });
-    const b = requiredRadius({ X: 0.04, tMax: 1800, sigma: 29.4e-3, thetaDeg: 30, mu: 8e-3 });
-    expect(a.r * 1e6).toBeCloseTo(0.3072, 3);
-    expect(b.r * 1e6).toBeCloseTo(0.5586, 3);
-  });
-  it('is infeasible without applied pressure when θ ≥ 90°', () => {
-    expect(requiredRadius({ X: 0.04, tMax: 1800, sigma: 0.03, thetaDeg: 95, mu: 4e-3 }).feasible).toBe(false);
-  });
-  it('gas limit for ≥ 95 % fill at r = 0.307 µm is ≈ 13.4 kPa abs', () => {
-    const g = requiredGasPressure({ fillTarget: 0.95, pL: 101300, sigma: 29.4e-3, thetaDeg: 30, r: 0.30718e-6 });
-    expect(g.pg0Max / 1e3).toBeCloseTo(13.35, 1);
   });
 });
 
@@ -246,5 +229,15 @@ describe('audit m1: gravity criterion for a vertical front', () => {
     const bond = validityChecks(BASE, ctxFor(BASE)).find((c) => c.id === 'bond');
     expect(bond.title).toMatch(/Meniscus shape/);
     expect(bond.detail).not.toMatch(/vertical pore would fill more slowly/);
+  });
+});
+
+describe('paper claims that are computed (Section 4.4, Fig. 9)', () => {
+  it('numerical dead-end end states match the analytical equilibrium within 1e-6 at every plotted pressure', () => {
+    const v = vacuumSweep(BASE);
+    for (const n of v.numerical) {
+      const exact = 1 - n.pg0 / (BASE.pL + capillaryPressure(BASE.sigma, BASE.thetaDeg, BASE.r));
+      expect(relErr(n.fill, exact)).toBeLessThan(1e-6);
+    }
   });
 });

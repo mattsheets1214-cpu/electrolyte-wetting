@@ -2,7 +2,7 @@
  * main.js — application entry: styles, fonts, hash router, header controls.
  *
  * Each page lives in src/sections/<name>.js and exports render(container)
- * which may return a cleanup function. Routes use the URL hash (#/lab), which
+ * which may return a cleanup function. Routes use the URL hash (#/paper), which
  * works on GitHub Pages without any server configuration.
  */
 import '@fontsource/ibm-plex-sans/400.css';
@@ -19,11 +19,18 @@ import './styles/site.css';
 import { pageEnter, revealFigures } from './animations/motion.js';
 
 const ROUTES = {
-  overview: { title: 'Overview', load: () => import('./sections/overview.js') },
-  lab: { title: 'Interactive lab', load: () => import('./sections/lab.js') },
-  theory: { title: 'Theory', load: () => import('./sections/theory.js') },
-  verification: { title: 'Code & verification', load: () => import('./sections/verification.js') },
-  references: { title: 'References & credits', load: () => import('./sections/references.js') },
+  paper: { title: 'Paper', load: () => import('./sections/paper.js') },
+  lab: { title: 'Interactive demonstration', load: () => import('./sections/lab.js') },
+  supplement: { title: 'Supplementary material', load: () => import('./sections/supplement.js') },
+  'ai-documentation': { title: 'AI project documentation', load: () => import('./sections/aiDocumentation.js') },
+};
+
+/** Old routes (v1 site) kept working: route → [new route, default anchor]. */
+const ALIASES = {
+  overview: ['paper', null],
+  theory: ['paper', 'theory'],
+  references: ['paper', 'references'],
+  verification: ['supplement', 's4'],
 };
 
 const app = document.getElementById('app');
@@ -33,8 +40,11 @@ let currentRoute = null;
 
 function parseHash() {
   const raw = location.hash.replace(/^#\/?/, '');
-  const [route, ...rest] = raw.split('/');
-  return { route: ROUTES[route] ? route : 'overview', anchor: rest.join('/') || null };
+  const [first, ...rest] = raw.split('/');
+  const anchor = rest.join('/') || null;
+  if (ROUTES[first]) return { route: first, anchor };
+  if (ALIASES[first]) return { route: ALIASES[first][0], anchor: anchor || ALIASES[first][1] };
+  return { route: 'paper', anchor: null };
 }
 
 async function navigate() {

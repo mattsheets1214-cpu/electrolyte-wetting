@@ -1,9 +1,9 @@
 /**
- * porous.js — closed-form Darcy relations used ONLY by the theory lessons and
- * the verification checks (lesson 7, "From one pore to a battery electrode").
+ * porous.js — closed-form Darcy relations used ONLY by Supplementary Section S2 and
+ * the verification checks (paper Section 5.3 summarizes them).
  *
  * This is not a new solver and the lab does not call it: Mode A is unchanged.
- * These functions exist so that the numbers quoted in lesson 7 are computed,
+ * These functions exist so that the numbers quoted in Supplementary Section S2 are computed,
  * tested and can never drift from the text.
  *
  * Model: one-dimensional imbibition with a SHARP front. Behind the front the
