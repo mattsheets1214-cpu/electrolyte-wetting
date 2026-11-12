@@ -293,6 +293,7 @@ pre.console { background: var(--ink); color: var(--paper); border-radius: var(--
 @media print {
   .site-header, .site-footer, .controls, .player { display: none !important; }
 }
+/* Paper-specific print rules are in the "journal paper" block below. */
 
 @media (max-width: 440px) {
   .site-header__inner { gap: var(--space-2); }
@@ -314,40 +315,121 @@ pre.console { background: var(--ink); color: var(--paper); border-radius: var(--
   .rule-readout .r-val { font-size: var(--step-3); }
 }
 
-/* ---------------------------------------------------------------- journal paper */
+/* ---------------------------------------------------------------- journal paper
+ * Presentation of #/paper (and the supplement, which shares .paper) in the
+ * house style of an engineering journal. Everything here is scoped to .paper
+ * or .paper-layout so the interactive demonstration is unchanged.
+ */
 .paper { max-width: 52rem; }
-.paper-head { margin-bottom: var(--space-6); border-bottom: 1px solid var(--rule); padding-bottom: var(--space-4); }
+.paper-layout { display: block; }
+.paper-outline { display: none; }
+
+/* front matter */
+.paper-head { margin-bottom: var(--space-5); border-bottom: 1px solid var(--rule); padding-bottom: var(--space-4); }
 .paper-kind { font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin: 0 0 var(--space-2); }
 .paper-head h1 { font-family: var(--font-read); font-weight: 500; font-size: var(--step-3); line-height: 1.2; margin: 0 0 var(--space-3); }
 .paper-author { font-family: var(--font-read); font-size: var(--step-1); margin: 0; }
 .paper-affil, .paper-note { color: var(--ink-2); font-size: var(--step--1); margin: 2px 0; }
-.paper-links { margin-top: var(--space-3); color: var(--ink-2); }
-.abstract { background: var(--paper-2); border-left: 3px solid var(--liquid); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-5); font-family: var(--font-read); font-size: 1.05rem; line-height: 1.55; }
-.abstract h2 { font-size: var(--step-0); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 var(--space-2); font-family: var(--font-ui, inherit); }
+.paper-links { margin: var(--space-2) 0 0; color: var(--ink-2); }
+
+/* abstract: thin rules, slight indent, small-caps heading */
+.abstract { border-top: 1px solid var(--ink-3); border-bottom: 1px solid var(--ink-3); padding: var(--space-3) 0; margin: 0 var(--space-5) var(--space-5); font-family: var(--font-read); font-size: 1rem; line-height: 1.5; }
+.abstract h2 { font-family: var(--font-read); font-variant: small-caps; text-transform: lowercase; font-weight: 600; font-size: var(--step-1); letter-spacing: 0.04em; margin: 0 0 var(--space-2); color: var(--ink); }
 .abstract p { margin: 0 0 var(--space-2); }
-.keywords { font-size: var(--step--1); color: var(--ink-2); }
+.abstract .keywords { font-size: var(--step--1); color: var(--ink-2); margin: var(--space-3) 0 0; }
+
+/* headings: serif, number in text colour followed by a period, no accents */
 .paper-section { margin-top: var(--space-6); }
-.paper-section h2 { font-family: var(--font-read); font-weight: 600; font-size: var(--step-2); margin: 0 0 var(--space-3); }
-.paper-section h3 { font-family: var(--font-read); font-weight: 600; font-size: var(--step-1); margin: var(--space-5) 0 var(--space-2); }
-.paper-section h4 { font-size: var(--step-0); margin: var(--space-4) 0 var(--space-2); }
+.paper-section h2 { font-family: var(--font-read); font-weight: 600; font-size: var(--step-2); line-height: 1.25; margin: 0 0 var(--space-3); color: var(--ink); }
+.paper-section h3 { font-family: var(--font-read); font-weight: 600; font-size: var(--step-1); line-height: 1.3; margin: var(--space-5) 0 var(--space-2); color: var(--ink); }
+.paper-section h4 { font-family: var(--font-read); font-style: italic; font-weight: 500; font-size: var(--step-0); margin: var(--space-4) 0 var(--space-2); }
 .paper-section .paper-section { margin-top: var(--space-4); }
-.sec-num { color: var(--ink-3); margin-right: 0.35em; font-variant-numeric: tabular-nums; }
-.paper-prose { max-width: 46rem; text-align: left; }
-.eq-numbered .eq { margin: var(--space-2) 0; }
-.eq-numbered .katex-display > .katex { text-align: left; }
-.eq-numbered .tag { color: var(--ink-3); }
-.paper-fig figcaption { max-width: 46rem; }
+.paper .sec-num { color: inherit; margin-right: 0.4em; font-variant-numeric: tabular-nums; }
+.paper .sec-num::after { content: '.'; }
+
+/* body text: left-aligned on phones (justified text leaves gaps in narrow columns) */
+.paper-prose { font-size: 1.05rem; line-height: 1.5; max-width: 70ch; text-align: left; hyphens: auto; -webkit-hyphens: auto; }
+@media (min-width: 700px) { .paper-prose { text-align: justify; } }
+.paper-prose li, .paper-prose table, .paper-prose figcaption, .paper-prose .table-caption, .paper-prose .fig-sub { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
+
+/* display equations: centred, number "(n)" at the right margin in text colour */
+.paper .eq-numbered .eq { margin: var(--space-2) 0; padding: var(--space-2) 0; }
+.paper .eq-numbered .katex-display { text-align: center; margin: 0; }
+.paper .eq-numbered .katex-display > .katex { text-align: center; }
+.paper .eq-numbered .tag { color: var(--ink); }
+
+/* figures: plain page, centred, caption underneath */
+.paper .paper-fig { margin: var(--space-5) 0; text-align: center; }
+.paper .paper-fig .figure__well { background: none; border: 0; border-radius: 0; padding: 0; }
+.paper .paper-fig .chart { text-align: left; }
+.paper .paper-fig figcaption { max-width: 46rem; margin: var(--space-2) auto 0; text-align: left; color: var(--ink); font-size: var(--step--1); line-height: 1.45; }
+.paper .paper-fig figcaption b { font-weight: 700; }
+.paper .schematic-tag { display: none; }
 .fig-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
 .fig-row svg { width: 100%; height: auto; }
 .fig-sub { text-align: center; font-size: var(--step--1); color: var(--ink-2); margin: 2px 0 0; }
-@media (max-width: 640px) { .fig-row { grid-template-columns: 1fr; } }
-.paper-table { margin: var(--space-4) 0; }
-.table-caption { font-size: var(--step--1); color: var(--ink-2); max-width: 46rem; margin: 0 0 var(--space-1); }
-.table-caption b { color: var(--ink); }
+@media (max-width: 640px) { .fig-row { grid-template-columns: 1fr; } .abstract { margin-left: 0; margin-right: 0; } }
+
+/* tables: three-line (booktabs) style, caption above */
+.paper-table { margin: var(--space-5) 0; }
+.table-caption { font-size: var(--step--1); color: var(--ink); max-width: 46rem; margin: 0 0 var(--space-2); line-height: 1.45; }
+.table-caption b { font-weight: 700; }
+.paper .paper-table .table-wrap { margin: 0; }
+.paper .paper-table table { border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+@media (max-resolution: 1.5dppx) { .paper .paper-table table { border-top-width: 2px; border-bottom-width: 2px; } }
+.paper .paper-table th, .paper .paper-table td { border-bottom: 0; padding: 5px 10px; }
+.paper .paper-table thead th { border-bottom: 0.75px solid var(--ink); color: var(--ink); font-weight: 600; }
+/* Basis column: plain words in the paper (badges remain in the lab) */
+.paper .badge { border: 0; padding: 0; border-radius: 0; color: inherit; font-size: inherit; line-height: inherit; }
+
+/* nomenclature: lightly ruled box, two columns on wide screens */
+.nomenclature-box { border: 1px solid var(--rule); padding: var(--space-2) var(--space-4); overflow-x: auto; }
+.nomenclature { font-size: var(--step--1); }
+.nomenclature th, .nomenclature td { border-bottom: 0; padding: 3px 8px 3px 0; }
+.nomenclature thead th { border-bottom: 1px solid var(--rule); color: var(--ink); }
 .nomenclature td:first-child { white-space: nowrap; }
+.nomenclature td:last-child { white-space: nowrap; color: var(--ink-2); }
+.nomenclature--2 thead { display: none; }
+@media (min-width: 900px) {
+  .nomenclature-box { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); }
+  .nomenclature--2 thead { display: table-header-group; }
+}
+
+/* back matter */
 .findings { padding-left: 1.4em; }
 .findings li { margin-bottom: var(--space-2); }
 .refs--numbered { padding-left: 2.2em; list-style: decimal; }
-.refs--numbered li { margin-bottom: var(--space-2); font-size: var(--step--1); line-height: 1.5; }
+.refs--numbered li { margin-bottom: var(--space-2); font-size: var(--step--1); line-height: 1.5; border-top: 0; padding: 0; }
 .cite a { text-decoration: none; }
 .transcript { white-space: pre-wrap; max-height: 24rem; overflow: auto; }
+
+/* section outline (wide screens only); highlight changes instantly */
+@media (min-width: 1200px) {
+  .paper-layout { display: grid; grid-template-columns: 200px minmax(0, 52rem); gap: var(--space-7); }
+  .paper-outline { display: block; position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 96px); overflow-y: auto; font-size: var(--step--1); }
+}
+.paper-outline__title { font-family: var(--font-read); font-variant: small-caps; text-transform: lowercase; font-weight: 600; margin: 0 0 var(--space-2); }
+.paper-outline ol { list-style: none; margin: 0; padding: 0; }
+.paper-outline a { display: block; padding: 4px 0 4px 10px; color: var(--ink-2); text-decoration: none; border-left: 2px solid transparent; line-height: 1.35; transition: none; }
+.paper-outline a:hover { color: var(--ink); }
+.paper-outline a[aria-current='location'] { color: var(--ink); border-left-color: var(--ink); font-weight: 600; }
+
+/* print: a clean black-on-white article */
+@media print {
+  @page { margin: 18mm 16mm; }
+  :root, :root:not([data-theme='light']), :root[data-theme='dark'] {
+    --paper: #fff; --paper-2: #fff; --surface: #fff; --ink: #000; --ink-2: #222; --ink-3: #444; --rule: #888; --rule-2: #ccc;
+  }
+  html, body { background: #fff !important; color: #000 !important; }
+  body { font-family: var(--font-read); font-size: 10.5pt; }
+  .page { padding: 0; max-width: none; }
+  .paper-outline, .skip-link, nav { display: none !important; }
+  .paper-layout { display: block; }
+  .paper { max-width: none; }
+  .paper a { color: inherit; text-decoration: none; }
+  .paper-prose { font-size: 10.5pt; max-width: none; text-align: justify; }
+  .paper-fig, .paper-table, .eq-numbered, .nomenclature-box, .abstract { break-inside: avoid; }
+  .paper h1, .paper h2, .paper h3, .paper h4 { break-after: avoid; }
+  .chart-tip { display: none !important; }
+  .eq { overflow: visible; }
+}

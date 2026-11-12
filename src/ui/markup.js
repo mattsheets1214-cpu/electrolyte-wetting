@@ -16,6 +16,17 @@ const TAB_NO = Object.fromEntries(TABLES.map((t, i) => [t.id, i + 1]));
 export const eqNumber = (id) => EQ_NO[id];
 export const eqLabel = (id) => `Eq. (${EQ_NO[id]})`;
 
+/**
+ * Presentation only: add "(schematic, not to scale)" at the end of the first
+ * caption sentence (the one describing the drawing), unless the caption
+ * already says "not to scale". Caption strings in content/ are not edited.
+ */
+export function schematicNote(caption) {
+  if (/not to scale/i.test(caption)) return caption;
+  const m = /\.(\s|$)/.exec(caption);
+  return m ? `${caption.slice(0, m.index)} (schematic, not to scale)${caption.slice(m.index)}` : `${caption} (schematic, not to scale)`;
+}
+
 function missing(kind, id) { throw new Error(`Unknown ${kind} "${id}" in paper markup`); }
 
 /** Replace structural tokens (recursively, captions included). Does not render math or citations. */
@@ -37,7 +48,8 @@ export function tokens(src) {
       case 'fig': {
         const f = FIGURES.find((q) => q.id === id) || missing('figure', id);
         const body = f.kind === 'chart' ? `<div class="figure__well figure__well--plain"><div data-chart="${id}"></div></div>` : `<div class="figure__well">${f.html()}</div>`;
-        return `<figure class="figure paper-fig" id="fig-${id}" data-reveal>${body}<figcaption><b>Fig. ${FIG_NO[id]}.</b> ${tokens(f.caption)}${f.schematic ? ' <span class="schematic-tag">schematic</span>' : ''}</figcaption></figure>`;
+        const caption = f.schematic ? schematicNote(f.caption) : f.caption;
+        return `<figure class="figure paper-fig" id="fig-${id}">${body}<figcaption><b>Fig. ${FIG_NO[id]}.</b> ${tokens(caption)}</figcaption></figure>`;
       }
       case 'tab': {
         const t = TABLES.find((q) => q.id === id) || missing('table', id);

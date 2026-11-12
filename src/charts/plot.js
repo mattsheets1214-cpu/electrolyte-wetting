@@ -63,11 +63,31 @@ function mk(tag, attrs = {}, parent) {
   return n;
 }
 
+/**
+ * Axis labels may mark an italic symbol with *…* and a subscript with _{…},
+ * e.g. 'Capillary pressure, *p*_{c} (kPa)'. Labels without markers are
+ * drawn exactly as given (the interactive demonstration uses plain labels).
+ */
+export const plainLabel = (label) => String(label).replace(/\*([^*]+)\*/g, '$1').replace(/_\{([^}]*)\}/g, '_$1');
+
+function richLabel(textEl, label) {
+  const parts = String(label).split(/(\*[^*]+\*|_\{[^}]*\})/).filter(Boolean);
+  if (parts.length === 1 && !/^[*_]/.test(parts[0])) { textEl.textContent = label; return; }
+  let sub = false;
+  for (const part of parts) {
+    const t = mk('tspan', {}, textEl);
+    if (part.startsWith('*')) { t.textContent = part.slice(1, -1); t.setAttribute('font-style', 'italic'); }
+    else if (part.startsWith('_{')) { t.textContent = part.slice(2, -1); t.setAttribute('font-size', '0.75em'); t.setAttribute('dy', '0.3em'); sub = true; continue; }
+    else t.textContent = part;
+    if (sub) { t.setAttribute('dy', '-0.3em'); sub = false; }
+  }
+}
+
 export function createPlot(container, cfg) {
   const opts = { height: 320, xScale: 'linear', yScale: 'linear', xFormat: defaultFmt, yFormat: defaultFmt, ...cfg };
   container.classList.add('chart');
   container.innerHTML = '';
-  const svg = mk('svg', { role: 'img', tabindex: '0', 'aria-label': opts.ariaLabel || `${opts.yLabel} versus ${opts.xLabel}` });
+  const svg = mk('svg', { role: 'img', tabindex: '0', 'aria-label': opts.ariaLabel || `${plainLabel(opts.yLabel)} versus ${plainLabel(opts.xLabel)}` });
   container.appendChild(svg);
   const tip = document.createElement('div');
   tip.className = 'chart-tip';
@@ -139,9 +159,9 @@ export function createPlot(container, cfg) {
     }
     mk('path', { d: `M${M.left},${M.top}V${M.top + ih}H${M.left + iw}`, fill: 'none' }, axes);
     const xtitle = mk('text', { class: 'axis-title', x: M.left + iw / 2, y: height - 6, 'text-anchor': 'middle' }, svg);
-    xtitle.textContent = opts.xLabel;
+    richLabel(xtitle, opts.xLabel);
     const ytitle = mk('text', { class: 'axis-title', transform: `translate(14 ${M.top + ih / 2}) rotate(-90)`, 'text-anchor': 'middle' }, svg);
-    ytitle.textContent = opts.yLabel;
+    richLabel(ytitle, opts.yLabel);
 
     const clipId = `clip-${Math.random().toString(36).slice(2)}`;
     const cp = mk('clipPath', { id: clipId }, mk('defs', {}, svg));
@@ -217,7 +237,7 @@ export function createPlot(container, cfg) {
     return best;
   }
 
-  const tipHtml = (b) => `${b.s.name ? `<b>${esc(b.s.name)}</b><br>` : ''}${esc(opts.xLabel)}: ${esc((opts.tipX || opts.xFormat)(b.xv))}<br>${esc(opts.yLabel)}: ${esc((opts.tipY || opts.yFormat)(b.yv))}`;
+  const tipHtml = (b) => `${b.s.name ? `<b>${esc(b.s.name)}</b><br>` : ''}${esc(plainLabel(opts.xLabel))}: ${esc((opts.tipX || opts.xFormat)(b.xv))}<br>${esc(plainLabel(opts.yLabel))}: ${esc((opts.tipY || opts.yFormat)(b.yv))}`;
 
   svg.addEventListener('pointermove', (e) => {
     if (!scales) return;
@@ -243,7 +263,7 @@ export function createPlot(container, cfg) {
 
   return {
     update(next) { data = next; cursorIdx = -1; render(); },
-    setOptions(o) { Object.assign(opts, o); svg.setAttribute('aria-label', opts.ariaLabel || `${opts.yLabel} versus ${opts.xLabel}`); render(); },
+    setOptions(o) { Object.assign(opts, o); svg.setAttribute('aria-label', opts.ariaLabel || `${plainLabel(opts.yLabel)} versus ${plainLabel(opts.xLabel)}`); render(); },
     destroy() { ro.disconnect(); },
   };
 }

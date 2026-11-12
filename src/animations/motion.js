@@ -2,7 +2,7 @@
  * motion.js — interface motion using Motion (motion.dev).
  *
  * Kept deliberately small: one page-change transition and a one-time reveal
- * for figures as they scroll into view. Everything is skipped when the
+ * for elements marked data-reveal (paper figures no longer use it). Everything is skipped when the
  * visitor prefers reduced motion, and the page works if Motion fails to load
  * (content is visible by default; motion only ever animates FROM a state).
  */
