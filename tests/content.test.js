@@ -11,7 +11,8 @@ import {
 } from '../src/content/paper.js';
 import { SUPP_SECTIONS, SUPP_EQUATIONS, supplementText } from '../src/content/supplement.js';
 import { PAPER_REFS, SUPPLEMENT_REFS, CITE_NUMBER } from '../src/content/citations.js';
-import { tokens, renderMarkup } from '../src/ui/markup.js';
+import { tokens, renderMarkup, schematicNote } from '../src/ui/markup.js';
+import { plainLabel } from '../src/charts/plot.js';
 
 const flat = (secs) => secs.flatMap((s) => [s, ...flat(s.subsections || [])]);
 const ALL = flat(SECTIONS);
@@ -165,5 +166,23 @@ describe('navigation', () => {
     const html = fs.readFileSync('index.html', 'utf8');
     const nav = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
     expect([...nav.matchAll(/href="#\/([\w-]+)"/g)].map((m) => m[1])).toEqual(['paper', 'lab', 'supplement']);
+  });
+});
+
+describe('journal presentation (paper page)', () => {
+  it('schematic figures say "not to scale" exactly once and keep their caption text', () => {
+    for (const f of FIGURES.filter((q) => q.schematic)) {
+      const html = tokens(`{{fig:${f.id}}}`);
+      expect((html.match(/not to scale/gi) || []).length, f.id).toBe(1);
+      expect(html).not.toMatch(/schematic-tag/);
+      expect(schematicNote(f.caption).replace(' (schematic, not to scale)', '')).toBe(f.caption);
+    }
+  });
+  it('paper figures no longer use the scroll reveal', () => {
+    for (const f of FIGURES) expect(tokens(`{{fig:${f.id}}}`)).not.toMatch(/data-reveal/);
+  });
+  it('rich axis labels have a readable plain-text form', () => {
+    expect(plainLabel('Capillary pressure, *p*_{c} (kPa)')).toBe('Capillary pressure, p_c (kPa)');
+    expect(plainLabel('t (s)')).toBe('t (s)');
   });
 });

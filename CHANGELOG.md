@@ -2,6 +2,27 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [2.2.0] — 2026-11-12 — journal-article presentation of the paper (branch `paper-journal-style`, awaiting review)
+
+Presentation only. No wording, equation, number, caption string, reference or section structure in `src/content/` changed, and nothing in `src/physics/` changed. The interactive demonstration looks the same as before.
+
+### Changed
+- **Equations:** centred, with the number "(n)" at the right margin in the text colour. Long equations still scroll sideways on phones.
+- **Figures:** no graph-paper well, border or box. Figures sit centred on the page with "Fig. n." and the caption underneath. The scroll-reveal animation was removed from paper figures; page transitions and reduced-motion handling are unchanged.
+- **Schematic label:** the "schematic" pill was replaced by "(schematic, not to scale)" added by the renderer to the first caption sentence. It is skipped where the caption already says "not to scale" (Fig. 1).
+- **Tables:** three-line (booktabs) rules with the caption above. In the paper, the Basis column of Table 1 shows plain words instead of coloured badges; the badges remain in the lab.
+- **Abstract:** thin rules above and below, slight indent, small-caps heading. No grey background or blue bar.
+- **Headings:** serif, with the section number in the text colour followed by a period ("2.1. Capillary pressure"). This also applies to the supplementary material, which shares the paper styles.
+- **Body text:** 1.05 rem, line-height 1.5, about 70 characters per line, `lang="en"` set on the article. Text is justified with hyphenation on screens 700 px and wider; on phones it stays left-aligned to avoid uneven gaps between words.
+- **Nomenclature:** shown in a lightly ruled box, split into two side-by-side columns on screens 900 px and wider, and one column on phones.
+- **Front matter:** the "Supplements: … · Video presentation: to be added" line was replaced by "Supplementary material · Interactive demonstration". The video link appears only once `VIDEO.youtubeId` is set. The version date still comes from `META.note` and is not repeated or hard-coded.
+- **Charts (Figs. 6–9):** axis labels use the journal form with an italic symbol and the unit in parentheses (e.g. "Time, *t* (min)"). Every series has a distinct line style or marker (solid / dashed / dotted / squares), so the charts can be read in greyscale. `createPlot` accepts `*x*` (italic) and `_{…}` (subscript) in axis labels; plain labels such as the lab's render as before.
+
+### Added
+- **Section outline:** a sticky outline to the left of the article on screens 1200 px and wider, built from `SECTIONS`. The current section is highlighted with IntersectionObserver and the highlight changes instantly. Hidden below 1200 px.
+- **Print stylesheet:** white background, black text, serif font, links in the text colour, no header, footer, navigation or outline. Figures, tables, equations, the abstract and the nomenclature are not split across pages, and headings stay with the paragraph that follows. A two-column print layout was not added.
+- Tests: schematic captions say "not to scale" exactly once and keep their caption text, paper figures no longer carry `data-reveal`, and rich axis labels have a plain-text form for tooltips and screen readers.
+
 ## [2.1.0] — 2026-10-30 — AI documentation moved off the website (branch `remove-ai-docs-page`, awaiting review)
 
 At the author's request, the AI project documentation is no longer a page on the site; it will be presented in the author's project slide presentation.
