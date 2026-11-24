@@ -2,6 +2,17 @@
 
 All significant changes. Newest first. Dates are YYYY-MM-DD.
 
+## [2.3.0] — 2026-11-24 — YouTube video added (branch `add-youtube-video`, awaiting review)
+
+### Added
+- **Video presentation:** `VIDEO.youtubeId` set to `xwVquPQwv8U` (https://youtu.be/xwVquPQwv8U), supplied by the author. The paper page now shows an embedded player (privacy-enhanced `youtube-nocookie.com` embed, lazy-loaded) under a "Video presentation" heading between the front matter and the abstract, with a "Watch on YouTube" link. The front-matter "Video presentation" link now appears as well. The player is hidden when printing.
+
+### Unchanged
+- `VIDEO.title`, `VIDEO.recordedOn` and `VIDEO.autoTranscript` stay `null` until the author supplies them; the embed falls back to the label "Video presentation". No paper text, equation, figure or physics changed.
+
+### Tests
+- The content test now expects the real video id (and an 11-character YouTube id format) while still requiring the transcript to stay empty.
+
 ## [2.2.0] — 2026-11-12 — journal-article presentation of the paper (branch `paper-journal-style`, awaiting review)
 
 Presentation only. No wording, equation, number, caption string, reference or section structure in `src/content/` changed, and nothing in `src/physics/` changed. The interactive demonstration looks the same as before.

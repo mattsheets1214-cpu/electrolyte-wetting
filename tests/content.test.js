@@ -115,8 +115,9 @@ describe('journal writing style (main paper prose)', () => {
 
 describe('AI project documentation record stays honest (presented in the slides, not on the site)', () => {
   // When you add real material, update the matching expectation deliberately.
-  it('video and verbatim transcript stay empty until they exist', () => {
-    expect(VIDEO.youtubeId).toBeNull();
+  it('video id is the real published video; verbatim transcript stays empty until supplied', () => {
+    expect(VIDEO.youtubeId).toBe('xwVquPQwv8U');
+    expect(VIDEO.youtubeId).toMatch(/^[A-Za-z0-9_-]{11}$/);
     expect(VIDEO.autoTranscript).toBeNull();
   });
   it('independent critique, second implementation, comparison and reflection stay empty until supplied', () => {

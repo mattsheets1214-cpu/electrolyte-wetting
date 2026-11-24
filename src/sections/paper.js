@@ -63,6 +63,15 @@ export function render(root) {
       <p class="paper-links small"><a href="#/supplement">Supplementary material</a> · <a href="#/lab">Interactive demonstration</a>${VIDEO.youtubeId ? ` · <a href="https://www.youtube.com/watch?v=${VIDEO.youtubeId}">${esc(VIDEO.title || 'Video presentation')}</a>` : ''}</p>
     </header>
 
+    ${VIDEO.youtubeId ? `
+    <section class="paper-video" id="video" aria-labelledby="video-h">
+      <h2 id="video-h">Video presentation</h2>
+      <div class="video-slot video-slot--filled">
+        <iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(VIDEO.youtubeId)}" title="${esc(VIDEO.title || 'Video presentation')}" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <p class="small"><a href="https://www.youtube.com/watch?v=${encodeURIComponent(VIDEO.youtubeId)}">Watch on YouTube</a></p>
+    </section>` : ''}
+
     <section class="abstract" id="abstract" aria-labelledby="abstract-h">
       <h2 id="abstract-h">Abstract</h2>
       <p>${renderMarkup(ABSTRACT())}</p>

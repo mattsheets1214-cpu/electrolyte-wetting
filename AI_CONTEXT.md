@@ -41,7 +41,7 @@ Pages (since 30 Oct 2026, journal-paper restructuring): **Paper** (landing page)
 
 1. Never invent experimental data, references, DOIs, URLs, quotes, transcripts, video ids, AI critiques, test results or personal reflections.
 2. Every numerical input must have a source in `src/content/references.js` or be labelled `assumption`.
-3. The video id and transcript in `src/content/video.js`, and the empty slots in `src/content/aiDocs.js` (independent critique, second implementation, comparison, reflection), stay `null` until the real material exists. `tests/content.test.js` guards this — update those tests deliberately when real material is added. A critique by the same model that built the site must never be labelled independent.
+3. The video id (now set to the author's published video, `xwVquPQwv8U`) and transcript in `src/content/video.js`, and the empty slots in `src/content/aiDocs.js` (independent critique, second implementation, comparison, reflection), stay `null` until the real material exists. `tests/content.test.js` guards this — update those tests deliberately when real material is added. A critique by the same model that built the site must never be labelled independent.
 4. Code shown on the site is cut from the real source using `// #region name` … `// #endregion` markers (see `region()` in `src/sections/verification.js`). If you rename or remove a region, update the page.
 5. Plots, outputs and animations must come from the solver. No hard-coded results.
 6. Distinguish verification (code solves its equations) from validation (equations describe reality).
