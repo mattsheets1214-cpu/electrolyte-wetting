@@ -8,7 +8,7 @@
  * empty slots — never a made-up link or transcript.
  */
 export const VIDEO = {
-  youtubeId: null,
+  youtubeId: 'xwVquPQwv8U', // https://youtu.be/xwVquPQwv8U
   title: null,
   recordedOn: null,
   autoTranscript: null,
